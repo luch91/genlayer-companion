@@ -6,6 +6,20 @@ import { MISSIONS_DATA, OPEN_CONTRIBUTIONS } from '@/data/missions'
 import ChatPanel from '@/components/chat/ChatPanel'
 import BuildWizard from '@/components/build/BuildWizard'
 
+function handleTilt(e: React.MouseEvent<HTMLDivElement>) {
+  const el = e.currentTarget
+  const rect = el.getBoundingClientRect()
+  const x = (e.clientX - rect.left) / rect.width
+  const y = (e.clientY - rect.top) / rect.height
+  const rotX = (y - 0.5) * -8
+  const rotY = (x - 0.5) * 8
+  el.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg)`
+}
+
+function handleTiltReset(e: React.MouseEvent<HTMLDivElement>) {
+  e.currentTarget.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)'
+}
+
 export default function MissionsMode() {
   const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
   const [buildMissionId, setBuildMissionId] = useState<MissionId | null>(null)
@@ -64,13 +78,19 @@ export default function MissionsMode() {
               <div
                 key={mission.id}
                 style={{
-                  background: selectedMissionId === mission.id ? 'var(--surface2)' : 'var(--surface)',
+                  background: selectedMissionId === mission.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
                   border: `1px solid ${selectedMissionId === mission.id ? 'var(--accent)' : 'var(--border)'}`,
-                  borderRadius: '10px',
+                  borderRadius: '12px',
                   padding: '20px 24px',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+                  willChange: 'transform',
+                  boxShadow: selectedMissionId === mission.id ? '0 4px 32px rgba(0,229,160,0.1)' : 'none',
                 }}
+                onMouseMove={handleTilt}
+                onMouseLeave={handleTiltReset}
                 onClick={() => setSelectedMissionId(mission.id === selectedMissionId ? null : mission.id)}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
@@ -182,13 +202,19 @@ export default function MissionsMode() {
               <div
                 key={contrib.id}
                 onClick={() => setSelectedMissionId(contrib.id === selectedMissionId ? null : contrib.id)}
+                onMouseMove={handleTilt}
+                onMouseLeave={handleTiltReset}
                 style={{
-                  background: selectedMissionId === contrib.id ? 'var(--surface2)' : 'var(--surface)',
+                  background: selectedMissionId === contrib.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
                   border: `1px solid ${selectedMissionId === contrib.id ? 'var(--orange)' : 'var(--border)'}`,
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   padding: '16px',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+                  willChange: 'transform',
+                  boxShadow: selectedMissionId === contrib.id ? '0 4px 24px rgba(255,107,53,0.1)' : 'none',
                 }}
               >
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--orange)', marginBottom: '6px' }}>
@@ -224,6 +250,7 @@ export default function MissionsMode() {
 
       <ChatPanel
         mode="missions"
+        missionId={selectedMissionId ?? undefined}
         seedMessage={seedMessage || "I'm your GenLayer build coach. Select a mission to get started, or ask me anything about the Builder Portal missions."}
       />
     </div>

@@ -1,17 +1,18 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { Mode, Message } from '@/types'
+import type { Mode, Message, MissionId } from '@/types'
 import { chatWithClaude } from '@/lib/claude'
 import LoadingDots from '@/components/ui/LoadingDots'
 
 interface ChatPanelProps {
   mode: Mode
+  missionId?: MissionId
   seedMessage?: string
   suggestions?: string[]
 }
 
-export default function ChatPanel({ mode, seedMessage, suggestions = [] }: ChatPanelProps) {
+export default function ChatPanel({ mode, missionId, seedMessage, suggestions = [] }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>(
     seedMessage ? [{ role: 'assistant', content: seedMessage }] : []
   )
@@ -30,7 +31,7 @@ export default function ChatPanel({ mode, seedMessage, suggestions = [] }: ChatP
     setInput('')
     setLoading(true)
     try {
-      const reply = await chatWithClaude(mode, [...messages, userMsg])
+      const reply = await chatWithClaude(mode, [...messages, userMsg], missionId)
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
     } catch {
       setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }])

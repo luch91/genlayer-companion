@@ -15,6 +15,17 @@ interface BuildWizardProps {
   onClose: () => void
 }
 
+const GENERATING_MESSAGES: Record<MissionId, string> = {
+  minigame:       'Claude is building your contract, frontend, and content...',
+  projects:       'Claude is building your contract, frontend, and content...',
+  tools:          'Claude is building your contract, frontend, and content...',
+  tutorial:       'Claude is writing your tutorial and building the demo contract...',
+  research:       'Claude is writing your research paper...',
+  community:      'Claude is building your community contribution plan...',
+  documentation:  'Claude is writing your documentation...',
+  educational:    'Claude is building your educational content...',
+}
+
 const STEP_LABELS: Record<BuildStep, string> = {
   ideas: 'FIND IDEA',
   questions: 'CUSTOMIZE',
@@ -27,6 +38,7 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
   const [step, setStep] = useState<BuildStep>('ideas')
   const [entryMode, setEntryMode] = useState<'choose' | 'generate' | 'direct' | null>(null)
   const [idea, setIdea] = useState<IdeaItem | null>(null)
+  const [customIdeaText, setCustomIdeaText] = useState('')
   const [output, setOutput] = useState<GeneratedOutput | null>(null)
   const [error, setError] = useState('')
 
@@ -157,9 +169,44 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
             {entryMode === 'direct' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--muted)' }}>
-                  Go straight to the customization questions →
+                  Describe your idea — the more detail you give, the better your build will be.
                 </p>
-                <Button onClick={() => setStep('questions')}>CONTINUE TO QUESTIONS →</Button>
+                <textarea
+                  value={customIdeaText}
+                  onChange={(e) => setCustomIdeaText(e.target.value)}
+                  placeholder="e.g. A prediction market where users bet on real-world sports outcomes. The contract fetches live scores using gl.get_webpage and validators settle disputes automatically..."
+                  rows={5}
+                  style={{
+                    width: '100%',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '14px 16px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '14px',
+                    color: 'var(--text)',
+                    resize: 'vertical',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    lineHeight: 1.6,
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    const trimmed = customIdeaText.trim()
+                    if (!trimmed) return
+                    setIdea({
+                      title: trimmed.length > 60 ? trimmed.slice(0, 60).trimEnd() + '…' : trimmed,
+                      description: trimmed,
+                      contract: '',
+                      difficulty: 'intermediate',
+                    })
+                    setStep('questions')
+                  }}
+                  disabled={!customIdeaText.trim()}
+                >
+                  CONTINUE TO QUESTIONS →
+                </Button>
               </div>
             )}
 
@@ -216,34 +263,90 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
         {step === 'generating' && (
           <div
             style={{
+              position: 'relative',
+              overflow: 'hidden',
+              minHeight: '60vh',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: '60vh',
-              gap: '20px',
             }}
           >
+            {/* Background orbs */}
+            <div style={{ position: 'absolute', top: '10%', left: '15%', width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,229,160,0.07) 0%, transparent 70%)', filter: 'blur(48px)', animation: 'gl-float 9s ease-in-out infinite', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '50%', left: '65%', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'gl-float-alt 11s ease-in-out infinite', pointerEvents: 'none' }} />
+
+            {/* Expanding rings */}
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: 180,
+                  height: 180,
+                  borderRadius: '50%',
+                  border: '1px solid rgba(0,229,160,0.25)',
+                  animation: 'gl-generating-ring 2.4s ease-out infinite',
+                  animationDelay: `${i * 0.8}s`,
+                  pointerEvents: 'none',
+                }}
+              />
+            ))}
+
+            {/* Particles */}
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  bottom: '38%',
+                  left: `${43 + i * 2.5}%`,
+                  width: 3,
+                  height: 3,
+                  borderRadius: '50%',
+                  background: 'var(--accent)',
+                  animation: 'gl-particle 2.2s ease-in-out infinite',
+                  animationDelay: `${i * 0.38}s`,
+                  opacity: 0,
+                  pointerEvents: 'none',
+                }}
+              />
+            ))}
+
+            {/* Content */}
             <div
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '48px',
-                letterSpacing: '0.08em',
-                color: 'var(--accent)',
+                position: 'relative',
+                zIndex: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '20px',
               }}
             >
-              GENERATING
-            </div>
-            <LoadingDots />
-            <div
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '12px',
-                color: 'var(--muted)',
-                letterSpacing: '0.08em',
-              }}
-            >
-              Claude is building your contract, frontend, and content...
+              <div
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '56px',
+                  letterSpacing: '0.08em',
+                  color: 'var(--accent)',
+                  animation: 'gl-pulse-glow 2.5s ease-in-out infinite',
+                }}
+              >
+                GENERATING
+              </div>
+              <LoadingDots />
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '12px',
+                  color: 'var(--muted)',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {GENERATING_MESSAGES[missionId]}
+              </div>
             </div>
           </div>
         )}

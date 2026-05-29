@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { MissionId, IdeaItem } from '@/types'
-import { BACKGROUNDS, INTERESTS, TIME_COMMITMENTS } from '@/data/backgrounds'
+import { MISSIONS_DATA, OPEN_CONTRIBUTIONS } from '@/data/missions'
 import { generateIdeas } from '@/lib/claude'
 import Chip from '@/components/ui/Chip'
 import Button from '@/components/ui/Button'
@@ -19,28 +19,38 @@ const difficultyColor: Record<string, 'accent' | 'orange' | 'muted'> = {
   advanced: 'muted',
 }
 
+const fieldLabel: Record<MissionId, string> = {
+  tutorial: 'Tutorial Structure',
+  minigame: 'Game Contract',
+  projects: 'Intelligent Contract',
+  research: 'Research Approach',
+  tools: 'Technical Approach',
+  community: 'Content Format',
+  documentation: 'Documentation Format',
+  educational: 'Learning Format',
+}
+
+function getMissionInfo(missionId: MissionId): { title: string; description: string; badge?: string } | null {
+  const mission = MISSIONS_DATA.find((m) => m.id === missionId)
+  if (mission) return { title: mission.title, description: mission.description, badge: mission.badge }
+  const contrib = OPEN_CONTRIBUTIONS.find((c) => c.id === missionId)
+  if (contrib) return { title: contrib.title, description: contrib.description }
+  return null
+}
+
 export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProps) {
-  const [background, setBackground] = useState('')
-  const [interests, setInterests] = useState<string[]>([])
-  const [time, setTime] = useState('')
   const [ideas, setIdeas] = useState<IdeaItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  function toggleInterest(val: string) {
-    setInterests((prev) => (prev.includes(val) ? prev.filter((i) => i !== val) : [...prev, val]))
-  }
+  const info = getMissionInfo(missionId)
+  const label = fieldLabel[missionId]
 
   async function handleGenerate() {
     setLoading(true)
     setError('')
     try {
-      const results = await generateIdeas({
-        missionId,
-        background: background || 'general',
-        interests: interests.length > 0 ? interests : ['general'],
-        timeCommitment: time || 'week',
-      })
+      const results = await generateIdeas({ missionId })
       setIdeas(results)
     } catch {
       setError('Failed to generate ideas. Please try again.')
@@ -53,12 +63,7 @@ export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProp
     setLoading(true)
     setError('')
     try {
-      const results = await generateIdeas({
-        missionId,
-        background: 'developer',
-        interests: ['ai', 'gaming', 'defi'],
-        timeCommitment: 'week',
-      })
+      const results = await generateIdeas({ missionId })
       setIdeas(results)
       if (results.length > 0) onSelect(results[0])
     } catch {
@@ -70,38 +75,41 @@ export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProp
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      <div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>
-          Your Background
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {BACKGROUNDS.map((b) => (
-            <Chip key={b.value} label={b.label} selected={background === b.value} onClick={() => setBackground(b.value === background ? '' : b.value)} />
-          ))}
-        </div>
-      </div>
 
-      <div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>
-          Interests (pick any)
+      {info && (
+        <div style={{
+          background: 'rgba(0,229,160,0.05)',
+          border: '1px solid rgba(0,229,160,0.2)',
+          borderRadius: '8px',
+          padding: '16px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {info.badge && (
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '9px',
+                color: 'var(--accent)',
+                background: 'rgba(0,229,160,0.1)',
+                border: '1px solid rgba(0,229,160,0.25)',
+                padding: '2px 6px',
+                borderRadius: '3px',
+                letterSpacing: '0.08em',
+              }}>
+                {info.badge}
+              </span>
+            )}
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.04em' }}>
+              {info.title}
+            </span>
+          </div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
+            {info.description}
+          </div>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {INTERESTS.map((i) => (
-            <Chip key={i.value} label={i.label} selected={interests.includes(i.value)} onClick={() => toggleInterest(i.value)} />
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>
-          Time Available
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {TIME_COMMITMENTS.map((t) => (
-            <Chip key={t.value} label={t.label} selected={time === t.value} onClick={() => setTime(t.value === time ? '' : t.value)} />
-          ))}
-        </div>
-      </div>
+      )}
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <Button onClick={handleGenerate} disabled={loading}>
@@ -119,7 +127,7 @@ export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProp
       {ideas.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Select an Idea to Build
+            Select an Idea
           </div>
           {ideas.map((idea, i) => (
             <div
@@ -154,6 +162,9 @@ export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProp
                 <Chip label={idea.difficulty} color={difficultyColor[idea.difficulty]} />
               </div>
               <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.6 }}>{idea.description}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: '4px' }}>
+                {label}
+              </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)' }}>{idea.contract}</div>
             </div>
           ))}

@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { TOPICS, LEARN_SUGGESTIONS } from '@/data/learn'
+import { TOPICS, LEARN_SUGGESTIONS, TOPIC_SEEDS, TOOL_IDS } from '@/data/learn'
 import type { Topic } from '@/types'
 import ChatPanel from '@/components/chat/ChatPanel'
 import Chip from '@/components/ui/Chip'
 
-const SEED =
-  "I'm your GenLayer learning guide. Ask me anything — from 'what is an Intelligent Contract?' to deep dives on Optimistic Democracy, gl.exec_prompt, and genlayer-js integration. I'll explain with working code examples."
+const DEFAULT_SEED =
+  "I'm your GenLayer learning guide. Select a topic or tool on the left to dive straight in, or ask me anything — from 'what is an Intelligent Contract?' to deep dives on Optimistic Democracy, gl.exec_prompt, and genlayer-js."
 
 const levelColor: Record<string, 'accent' | 'orange' | 'muted'> = {
   beginner: 'accent',
@@ -48,9 +48,12 @@ export default function LearnMode() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {TOPICS.map((topic: Topic) => (
-            <button
+            <div
               key={topic.id}
+              role="button"
+              tabIndex={0}
               onClick={() => setSelected(selected === topic.id ? null : topic.id)}
+              onKeyDown={(e) => e.key === 'Enter' && setSelected(selected === topic.id ? null : topic.id)}
               style={{
                 background: selected === topic.id ? 'var(--surface2)' : 'var(--surface)',
                 border: `1px solid ${selected === topic.id ? 'var(--accent)' : 'var(--border)'}`,
@@ -88,7 +91,7 @@ export default function LearnMode() {
                 </div>
               </div>
               <Chip label={topic.level} color={levelColor[topic.level]} />
-            </button>
+            </div>
           ))}
         </div>
 
@@ -105,13 +108,23 @@ export default function LearnMode() {
               color: 'var(--muted)',
             }}
           >
-            <span style={{ color: 'var(--accent)' }}>SELECTED —</span>{' '}
-            {TOPICS.find((t) => t.id === selected)?.title}. Ask the assistant to teach you this topic →
+            <span style={{ color: 'var(--accent)' }}>
+              {TOOL_IDS.includes(selected) ? 'TOOL' : 'TOPIC'} —
+            </span>{' '}
+            {TOPICS.find((t) => t.id === selected)?.title}.{' '}
+            {TOOL_IDS.includes(selected)
+              ? 'Ask the assistant to explain this tool →'
+              : 'Ask the assistant to teach you this topic →'}
           </div>
         )}
       </div>
 
-      <ChatPanel mode="learn" seedMessage={SEED} suggestions={LEARN_SUGGESTIONS} />
+      <ChatPanel
+        key={selected ?? 'default'}
+        mode="learn"
+        seedMessage={selected && TOPIC_SEEDS[selected] ? TOPIC_SEEDS[selected] : DEFAULT_SEED}
+        suggestions={LEARN_SUGGESTIONS}
+      />
     </div>
   )
 }

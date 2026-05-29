@@ -57,3 +57,48 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
 }
+
+@keyframes gl-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-28px); }
+}
+
+@keyframes gl-float-alt {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  33% { transform: translateY(-18px) translateX(10px); }
+  66% { transform: translateY(-10px) translateX(-8px); }
+}
+
+@keyframes gl-fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gl-pulse-glow {
+  0%, 100% { text-shadow: 0 0 20px rgba(0,229,160,0.7), 0 0 60px rgba(0,229,160,0.4), 0 0 100px rgba(0,229,160,0.15); }
+  50% { text-shadow: 0 0 40px rgba(0,229,160,1), 0 0 100px rgba(0,229,160,0.6), 0 0 160px rgba(0,229,160,0.25); }
+}
+
+@keyframes gl-rotate {
+  from { transform: rotate(45deg); }
+  to { transform: rotate(405deg); }
+}
+
+@keyframes gl-generating-ring {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
+}
+
+@keyframes gl-particle {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 0.6; }
+  100% { transform: translateY(-110px); opacity: 0; }
+}
+
+@keyframes gl-shooting-star {
+  0%   { transform: rotate(-35deg) translateX(0);     opacity: 0; }
+  6%   { opacity: 0.45; }
+  85%  { opacity: 0.35; }
+  100% { transform: rotate(-35deg) translateX(900px); opacity: 0; }
+}

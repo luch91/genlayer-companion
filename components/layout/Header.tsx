@@ -19,8 +19,10 @@ export default function Header({ mode, onHome }: HeaderProps) {
   return (
     <header
       style={{
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--surface)',
+        borderBottom: '1px solid rgba(22,36,53,0.8)',
+        background: 'rgba(9,19,28,0.82)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         padding: '0 24px',
         height: '56px',
         display: 'flex',
@@ -43,17 +45,16 @@ export default function Header({ mode, onHome }: HeaderProps) {
           padding: 0,
         }}
       >
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '22px',
-            letterSpacing: '0.08em',
-            color: 'var(--accent)',
-            lineHeight: 1,
-          }}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 97.76 91.93"
+          style={{ width: '28px', height: '28px', fill: 'var(--accent)', flexShrink: 0 }}
+          aria-label="GenLayer"
         >
-          GENLAYER
-        </span>
+          <polygon points="44.26 32.35 27.72 67.12 43.29 74.9 0 91.93 44.26 0 44.26 32.35" />
+          <polygon points="53.5 32.35 70.04 67.12 54.47 74.9 97.76 91.93 53.5 0 53.5 32.35" />
+          <polygon points="48.64 43.78 58.33 62.94 48.64 67.69 39.47 62.92 48.64 43.78" />
+        </svg>
         <span
           style={{
             fontFamily: 'var(--font-mono)',

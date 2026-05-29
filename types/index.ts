@@ -18,6 +18,7 @@ export interface GeneratedOutput {
   type: OutputType
   contract?: string
   frontend?: string
+  prototype?: string
   markdown?: string
   readme?: string
 }
@@ -36,9 +37,6 @@ export interface IdeaItem {
 
 export interface IdeaConfig {
   missionId: MissionId
-  background: string
-  interests: string[]
-  timeCommitment: string
 }
 
 export interface QuestionOption {
