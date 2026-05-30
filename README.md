@@ -1,36 +1,212 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GenLayer Builder Companion
 
-## Getting Started
+An AI-powered community tool for the GenLayer ecosystem. It guides builders from idea to deployable output — generating Intelligent Contracts, frontends, and content across multiple contribution tracks.
 
-First, run the development server:
+---
+
+## What it does
+
+The Builder Companion walks a user through five steps:
+
+1. **Find an idea** — describe your own or let AI generate five tailored suggestions
+2. **Customize** — answer mission-specific questions that shape the output
+3. **Generate** — AI builds all artifacts in parallel (contract, frontend, README, content)
+4. **Review** — inspect the full generated output before moving forward
+5. **Export** — run a 25-point audit, preview in-browser, download as ZIP, deploy
+
+---
+
+## Contribution tracks
+
+**Featured missions** (timed, with prizes):
+- From Zero to GenLayer — end-to-end tutorial
+- Mini-Games for Community — multiplayer on-chain game
+
+**Open contributions** (always available):
+- Projects & Milestones
+- Research & Analysis
+- Tools & Infrastructure
+- Community & Growth
+- Documentation
+- Educational Content
+
+---
+
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16.2.6 (App Router) |
+| Language | TypeScript 5 (strict) |
+| UI | React 19, Tailwind CSS v4 |
+| AI — chat & ideas | Groq (llama-3.3-70b-versatile) |
+| AI — build & audit | OpenRouter (qwen/qwen3-coder-30b-a3b-instruct) |
+| Build export | JSZip |
+| Persistence | Browser localStorage (no backend) |
+
+---
+
+## Getting started
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/luch91/genlayer-companion.git
+cd genlayer-companion
+npm install
+```
+
+### 2. Set up environment variables
+
+Create `.env.local` in the project root:
+
+```
+GROQ_API_KEY=your_groq_key_here
+OPENROUTER_API_KEY=your_openrouter_key_here
+```
+
+- **Groq** — free tier, get a key at [console.groq.com](https://console.groq.com)
+- **OpenRouter** — pay-per-use, get a key at [openrouter.ai](https://openrouter.ai)
+
+> Never commit `.env.local`. It is already in `.gitignore`.
+
+### 3. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```
+app/
+  api/generate/route.ts     Single API route — handles all AI calls server-side
+  layout.tsx
+  page.tsx
 
-To learn more about Next.js, take a look at the following resources:
+components/
+  build/
+    BuildWizard.tsx          Five-step wizard (ideas → questions → generating → output → export)
+    IdeaGenerator.tsx        AI idea generation UI
+    QuestionForm.tsx         Mission-specific customization questions
+    GeneratedOutput.tsx      Output viewer (contract, frontend, markdown, readme tabs)
+    ExportPanel.tsx          Download, preview, deploy, and audit
+    AuditReportPanel.tsx     25-point audit results display
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  chat/ChatPanel.tsx         AI chat sidebar (context-aware per mode)
+  home/ModeGrid.tsx          Landing mode selector
+  modes/                     ContributeMode, IdeateMode, LearnMode, MissionsMode
+  layout/Header.tsx Footer.tsx
+  ui/Button.tsx Chip.tsx LoadingDots.tsx
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+data/
+  missions.ts                Mission definitions and open contribution tracks
+  build-questions.ts         Per-mission customization questions
+  contribute.ts              Contribution path data
+  learn.ts                   Learning topics
+  backgrounds.ts             User background options
 
-## Deploy on Vercel
+lib/
+  claude.ts                  Client-side fetch helpers (chatWithClaude, generateIdeas, buildDeliverable, runAudit)
+  prompts/
+    base.ts                  GENLAYER_BASE_PROMPT — GenLayer API rules injected into every build
+    audit.ts                 25-point audit prompt (getAuditPrompt)
+    missions/                Per-mission system prompts (one file per track)
+  export/
+    netlify.ts               HTML download helper
+    vercel.ts                Vercel export helper
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+types/index.ts               All shared TypeScript interfaces
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## AI architecture
+
+All AI calls are server-side only. The client never sees API keys.
+
+```
+Client → POST /api/generate → Groq or OpenRouter → response → client
+```
+
+The single route (`app/api/generate/route.ts`) handles four request types:
+
+| type | provider | max tokens | purpose |
+|---|---|---|---|
+| `chat` | Groq | 1024 | Mode-aware AI chat |
+| `ideas` | Groq | 2048 | Generate 5 tailored ideas |
+| `build` | OpenRouter | 8192 per artifact | Generate all project artifacts in parallel |
+| `audit` | OpenRouter | 4096 | Run 25-point pre-deploy audit |
+
+Build artifacts are generated in parallel — one OpenRouter call per artifact — then assembled into a `GeneratedOutput` object.
+
+---
+
+## The 25-point audit
+
+Before a user exports their build, they're prompted to run a quality and correctness audit. The audit checks for:
+
+- GenLayer-specific issues (wrong API patterns, missing `from genlayer import *`, incorrect `gl.exec_prompt` usage)
+- Frontend issues (external CDN imports, missing demo mode, broken genlayer-js patterns)
+- Content issues (hallucinated API methods, outdated URLs like `gen-shipyard.vercel.app`)
+- Production risks (unbounded storage, no error handling, prompt injection vectors, rate limiting gaps)
+
+Returns a verdict (`ready` / `caution` / `not ready`), a ranked list of top issues to fix, and all 25 findings with specific reasons and fix actions.
+
+---
+
+## Build persistence
+
+Completed builds are saved to `localStorage` automatically. If a user closes their browser or laptop mid-session, the next time they open the wizard a restore banner appears with the idea title and timestamp. One click brings them back to their output.
+
+- Storage key: `genlayer_last_build`
+- Expiry: 7 days
+- Scope: per browser / per device (no account required)
+
+---
+
+## Export
+
+The Export panel produces:
+
+| File | Contents |
+|---|---|
+| `contract.py` | The Python Intelligent Contract |
+| `app.js` | The JavaScript frontend |
+| `index.html` | Minimal HTML shell |
+| `preview.html` | Self-contained local preview (JS inlined) |
+| `package.json` | Project metadata with `genlayer-js` dependency |
+| `README.md` | Generated deployment guide |
+
+Downloaded as `genlayer-project.zip`. The frontend preview runs in-browser via a blob URL iframe before download.
+
+After download, the panel walks the user through deploying with **Netlify Drop** (drag-and-drop, no account required) or **Vercel** (requires GitHub).
+
+Deployment flow:
+1. Deploy contract on [genshipyard.com](https://genshipyard.com)
+2. Copy the contract address
+3. Paste into the Export panel — the address is baked into `app.js` on download
+
+---
+
+## Security notes
+
+- API keys (`GROQ_API_KEY`, `OPENROUTER_API_KEY`) are server-only environment variables — never imported in any client component
+- All AI calls are proxied through `app/api/generate/route.ts`
+- No external database or user accounts — no data leaves the browser except AI prompts sent server-side
+- Never link to `gen-shipyard.vercel.app` — the correct URL is `genshipyard.com`
+
+---
+
+## Scripts
+
+```bash
+npm run dev      # Start dev server (Turbopack)
+npm run build    # Production build
+npm run start    # Start production server
+npm run lint     # ESLint
+```

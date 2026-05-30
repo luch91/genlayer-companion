@@ -108,6 +108,7 @@ export default function ExportPanel({ output, buildConfig, onBack }: ExportPanel
   const [frontendBlobUrl, setFrontendBlobUrl] = useState<string | null>(null)
   const [auditState, setAuditState] = useState<'idle' | 'loading' | 'done'>('idle')
   const [auditChecklist, setAuditChecklist] = useState<AuditChecklist | null>(null)
+  const [frontendView, setFrontendView] = useState<'demo' | 'prototype'>('demo')
 
   // — Prototype preview —
   function openPrototypePreview() {
@@ -121,13 +122,11 @@ export default function ExportPanel({ output, buildConfig, onBack }: ExportPanel
     if (prototypeBlobUrl) { URL.revokeObjectURL(prototypeBlobUrl); setPrototypeBlobUrl(null) }
   }
 
-  // — Frontend preview: wraps app.js in a minimal HTML document —
+  // — Frontend preview: always uses demo mode (CONTRACT_ADDRESS unreplaced) —
   function openFrontendPreview() {
     if (!output.frontend) return
-    const addr = contractAddress.trim()
-    const js = addr ? output.frontend.replace(/CONTRACT_ADDRESS/g, addr) : output.frontend
     const previewHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Preview</title></head><body><div id="root"></div><script>
-${js}
+${output.frontend}
 </script></body></html>`
     const url = URL.createObjectURL(new Blob([previewHtml], { type: 'text/html;charset=utf-8' }))
     setFrontendBlobUrl(url)
@@ -286,6 +285,38 @@ ${js}
         <AuditReportPanel report={auditChecklist} />
       )}
 
+      {/* ── GITHUB SUBMISSION — Projects & Milestones only ── */}
+      {buildConfig.missionId === 'projects' && (
+        <ExportCard title="GITHUB REPOSITORY" badge="REQUIRED FOR SUBMISSION">
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--muted)', marginBottom: '20px', lineHeight: 1.6 }}>
+            A public GitHub repository is the only required field for your Projects &amp; Milestones submission. Reviewers read your code directly from the repo. Everything else below is optional but earns extra points.
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {[
+              { step: 1, title: 'Initialise a git repo', body: 'Inside your project folder: git init → git add . → git commit -m "init"' },
+              { step: 2, title: 'Push to GitHub', body: 'Create a new public repo on github.com, then: git remote add origin <url> → git push -u origin main' },
+              { step: 3, title: 'Copy your repo URL', body: 'Format: github.com/your-username/your-repo — paste this into the Portal submission form as the required field.' },
+              { step: 4, title: 'Add optional extras for more points', body: 'Live deployment URL, demo link, or Shipyard deployment link are optional — each one tied directly to your project earns extra points.' },
+            ].map(({ step, title, body }) => (
+              <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
+                  background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                  borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
+                  textAlign: 'center', flexShrink: 0,
+                }}>
+                  {step}
+                </span>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text)', marginBottom: '2px' }}>{title}</div>
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>{body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ExportCard>
+      )}
+
       {/* ── INTELLIGENT CONTRACT ── */}
       {output.contract && (
         <ExportCard title="INTELLIGENT CONTRACT" badge="DEPLOY ON SHIPYARD">
@@ -319,118 +350,201 @@ ${js}
 
       {/* ── FRONTEND PROJECT ── */}
       {output.frontend && (
-        <ExportCard title="FRONTEND" badge="ZIP EXPORT">
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--muted)', marginBottom: '16px', lineHeight: 1.6 }}>
-            Download your project as a ZIP — contains the Python contract, JavaScript frontend (app.js), HTML shell, and package.json. Push to GitHub and GitHub correctly shows Python + JavaScript.
-          </div>
+        <ExportCard title="FRONTEND" badge={output.prototype && frontendView === 'prototype' ? 'FIGMA-READY' : 'ZIP EXPORT'}>
 
-          {/* Address confirmation */}
-          {output.contract && contractAddress.trim() && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px',
-              fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-              background: 'rgba(0,229,160,0.08)', border: '1px solid rgba(0,229,160,0.2)',
-              borderRadius: '6px', padding: '8px 12px',
-            }}>
-              <span>✓</span>
-              <span>{contractAddress.trim().slice(0, 10)}...{contractAddress.trim().slice(-8)} — address will be baked into app.js</span>
+          {/* View toggle — only shown when prototype is available */}
+          {output.prototype && (
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '20px' }}>
+              {(['demo', 'prototype'] as const).map((view) => (
+                <button
+                  key={view}
+                  onClick={() => setFrontendView(view)}
+                  style={{
+                    background: frontendView === view ? 'rgba(0,229,160,0.08)' : 'none',
+                    border: `1px solid ${frontendView === view ? 'rgba(0,229,160,0.4)' : 'var(--border)'}`,
+                    borderRadius: '4px',
+                    padding: '6px 14px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    color: frontendView === view ? 'var(--accent)' : 'var(--muted)',
+                    cursor: 'pointer',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {view === 'demo' ? 'INTERACTIVE DEMO' : 'HI-FI PROTOTYPE'}
+                </button>
+              ))}
             </div>
           )}
 
-          {/* Locked notice — download/copy only */}
-          {locked && (
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', marginBottom: '16px' }}>
-              Preview runs in demo mode — paste your contract address above to unlock download and copy with your real address baked in.
-            </div>
-          )}
-
-          {/* Action buttons */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Button variant="primary" onClick={openFrontendPreview}>
-              PREVIEW
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={locked}
-              onClick={() => {
-                if (!output.frontend) return
-                const addr = contractAddress.trim()
-                const js = addr ? output.frontend.replace(/CONTRACT_ADDRESS/g, addr) : output.frontend
-                navigator.clipboard.writeText(js)
-              }}
-            >
-              COPY app.js
-            </Button>
-            <Button variant="ghost" disabled={locked} onClick={handleDownloadProject}>
-              {projectDownloaded ? 'DOWNLOADED!' : 'DOWNLOAD PROJECT (ZIP)'}
-            </Button>
-          </div>
-
-          {/* Post-download: Netlify steps */}
-          {projectDownloaded && (
-            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--accent)', marginBottom: '4px' }}>
-                DEPLOY WITH NETLIFY DROP
+          {/* ── Demo tab ── */}
+          {(!output.prototype || frontendView === 'demo') && (
+            <>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--muted)', marginBottom: '16px', lineHeight: 1.6 }}>
+                Download your project as a ZIP — contains the Python contract, JavaScript frontend (app.js), HTML shell, and package.json. Push to GitHub and GitHub correctly shows Python + JavaScript.
               </div>
-              {NETLIFY_STEPS.map(({ step, title, body, url, cta }) => (
-                <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-                    background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
-                    borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
-                    textAlign: 'center', flexShrink: 0,
-                  }}>
-                    {step}
-                  </span>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text)', marginBottom: '2px' }}>{title}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>{body}</div>
-                    {url && (
-                      <Button variant="ghost" size="sm" style={{ marginTop: '6px' }} onClick={() => window.open(url, '_blank')}>
-                        {cta} →
-                      </Button>
+
+              {/* Address confirmation */}
+              {output.contract && contractAddress.trim() && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px',
+                  fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
+                  background: 'rgba(0,229,160,0.08)', border: '1px solid rgba(0,229,160,0.2)',
+                  borderRadius: '6px', padding: '8px 12px',
+                }}>
+                  <span>✓</span>
+                  <span>{contractAddress.trim().slice(0, 10)}...{contractAddress.trim().slice(-8)} — address will be baked into app.js</span>
+                </div>
+              )}
+
+              {/* Locked notice — download/copy only */}
+              {locked && (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', marginBottom: '16px' }}>
+                  Preview runs in demo mode — paste your contract address above to unlock download and copy with your real address baked in.
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <Button variant="primary" onClick={openFrontendPreview}>
+                  PREVIEW
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={locked}
+                  onClick={() => {
+                    if (!output.frontend) return
+                    const addr = contractAddress.trim()
+                    const js = addr ? output.frontend.replace(/CONTRACT_ADDRESS/g, addr) : output.frontend
+                    navigator.clipboard.writeText(js)
+                  }}
+                >
+                  COPY app.js
+                </Button>
+                <Button variant="ghost" disabled={locked} onClick={handleDownloadProject}>
+                  {projectDownloaded ? 'DOWNLOADED!' : 'DOWNLOAD PROJECT (ZIP)'}
+                </Button>
+              </div>
+
+              {/* Post-download: Netlify steps */}
+              {projectDownloaded && (
+                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--accent)', marginBottom: '4px' }}>
+                    DEPLOY WITH NETLIFY DROP
+                  </div>
+                  {NETLIFY_STEPS.map(({ step, title, body, url, cta }) => (
+                    <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <span style={{
+                        fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
+                        background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                        borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
+                        textAlign: 'center', flexShrink: 0,
+                      }}>
+                        {step}
+                      </span>
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text)', marginBottom: '2px' }}>{title}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>{body}</div>
+                        {url && (
+                          <Button variant="ghost" size="sm" style={{ marginTop: '6px' }} onClick={() => window.open(url, '_blank')}>
+                            {cta} →
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Vercel advanced toggle */}
+                  <div style={{ marginTop: '8px' }}>
+                    <button
+                      onClick={() => setShowVercel(!showVercel)}
+                      style={{
+                        background: 'none', border: 'none', fontFamily: 'var(--font-mono)',
+                        fontSize: '11px', color: 'var(--muted)', cursor: 'pointer', letterSpacing: '0.05em',
+                      }}
+                    >
+                      {showVercel ? '▼' : '▶'} VERCEL GUIDE (ADVANCED — REQUIRES GITHUB)
+                    </button>
+                    {showVercel && (
+                      <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {VERCEL_STEPS.map(({ step, title, body, url, cta }) => (
+                          <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                            <span style={{
+                              fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)',
+                              border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px',
+                              minWidth: '28px', textAlign: 'center', flexShrink: 0,
+                            }}>
+                              {step}
+                            </span>
+                            <div>
+                              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text)', marginBottom: '2px' }}>{title}</div>
+                              <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>{body}</div>
+                              {url && (
+                                <Button variant="ghost" size="sm" style={{ marginTop: '6px' }} onClick={() => window.open(url, '_blank')}>
+                                  {cta} →
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
-              ))}
+              )}
+            </>
+          )}
 
-              {/* Vercel advanced toggle */}
-              <div style={{ marginTop: '8px' }}>
-                <button
-                  onClick={() => setShowVercel(!showVercel)}
-                  style={{
-                    background: 'none', border: 'none', fontFamily: 'var(--font-mono)',
-                    fontSize: '11px', color: 'var(--muted)', cursor: 'pointer', letterSpacing: '0.05em',
+          {/* ── Prototype tab ── */}
+          {output.prototype && frontendView === 'prototype' && (
+            <>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--muted)', marginBottom: '16px', lineHeight: 1.6 }}>
+                A polished visual prototype — use it for pitching, stakeholder reviews, or import into Figma.
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <Button variant="primary" onClick={openPrototypePreview}>PREVIEW</Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    if (!output.prototype) return
+                    downloadHTML(output.prototype, 'genlayer-prototype.html')
+                    setPrototypeDownloaded(true)
                   }}
                 >
-                  {showVercel ? '▼' : '▶'} VERCEL GUIDE (ADVANCED — REQUIRES GITHUB)
-                </button>
-                {showVercel && (
-                  <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {VERCEL_STEPS.map(({ step, title, body, url, cta }) => (
-                      <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                        <span style={{
-                          fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)',
-                          border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px',
-                          minWidth: '28px', textAlign: 'center', flexShrink: 0,
-                        }}>
-                          {step}
-                        </span>
-                        <div>
-                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text)', marginBottom: '2px' }}>{title}</div>
-                          <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>{body}</div>
-                          {url && (
-                            <Button variant="ghost" size="sm" style={{ marginTop: '6px' }} onClick={() => window.open(url, '_blank')}>
-                              {cta} →
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  {prototypeDownloaded ? 'DOWNLOADED!' : 'DOWNLOAD PROTOTYPE'}
+                </Button>
               </div>
-            </div>
+
+              {prototypeDownloaded && (
+                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '0.08em' }}>
+                    IMPORT INTO FIGMA
+                  </div>
+                  {[
+                    { step: 1, title: 'Open Figma', body: 'Go to figma.com and open or create a file.' },
+                    { step: 2, title: 'Install the plugin', body: 'Search "HTML to Figma" in the Figma Community and install it (one-time setup).' },
+                    { step: 3, title: 'Run the plugin', body: 'In your Figma file, go to Plugins → HTML to Figma → Run.' },
+                    { step: 4, title: 'Upload your file', body: 'Choose "Upload HTML file" and select genlayer-prototype.html from your Downloads.' },
+                    { step: 5, title: 'Edit in Figma', body: 'The plugin creates editable layers. Adjust colours, typography, and layout freely.' },
+                  ].map(({ step, title, body }) => (
+                    <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <span style={{
+                        fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
+                        background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                        borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
+                        textAlign: 'center', flexShrink: 0,
+                      }}>
+                        {step}
+                      </span>
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text)', marginBottom: '2px' }}>{title}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>{body}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </ExportCard>
       )}

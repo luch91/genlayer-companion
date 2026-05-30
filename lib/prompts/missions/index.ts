@@ -89,7 +89,7 @@ export function getMissionArtifacts(missionId: MissionId): string[] {
     minigame:       ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
     projects:       ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
     educational:    ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
-    tools:          ['contract', 'markdown', 'readme'],
+    tools:          ['markdown', 'readme'],
     research:       ['markdown', 'readme'],
     community:      ['markdown', 'readme'],
     documentation:  ['markdown', 'readme'],

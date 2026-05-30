@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { MissionId, BuildStep, IdeaItem, GeneratedOutput, BuildConfig } from '@/types'
 import { buildDeliverable } from '@/lib/claude'
 import IdeaGenerator from './IdeaGenerator'
@@ -9,6 +9,26 @@ import GeneratedOutputView from './GeneratedOutput'
 import ExportPanel from './ExportPanel'
 import LoadingDots from '@/components/ui/LoadingDots'
 import Button from '@/components/ui/Button'
+
+const STORAGE_KEY = 'genlayer_last_build'
+const MAX_AGE_MS  = 7 * 24 * 60 * 60 * 1000
+
+interface SavedBuild {
+  output: GeneratedOutput
+  buildConfig: BuildConfig
+  savedAt: string
+}
+
+function timeAgo(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime()
+  const m  = Math.floor(ms / 60000)
+  const h  = Math.floor(ms / 3600000)
+  const d  = Math.floor(ms / 86400000)
+  if (m < 1)  return 'just now'
+  if (m < 60) return `${m}m ago`
+  if (h < 24) return `${h}h ago`
+  return `${d}d ago`
+}
 
 interface BuildWizardProps {
   missionId: MissionId
@@ -41,7 +61,31 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
   const [customIdeaText, setCustomIdeaText] = useState('')
   const [output, setOutput] = useState<GeneratedOutput | null>(null)
   const [buildConfig, setBuildConfig] = useState<BuildConfig | null>(null)
+  const [savedBuild, setSavedBuild]   = useState<SavedBuild | null>(null)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const parsed: SavedBuild = JSON.parse(raw)
+      if (Date.now() - new Date(parsed.savedAt).getTime() > MAX_AGE_MS) {
+        localStorage.removeItem(STORAGE_KEY)
+        return
+      }
+      setSavedBuild(parsed)
+    } catch {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  }, [])
+
+  function handleRestore() {
+    if (!savedBuild) return
+    setOutput(savedBuild.output)
+    setBuildConfig(savedBuild.buildConfig)
+    setIdea(savedBuild.buildConfig.idea)
+    setStep('output')
+  }
 
   async function handleAnswers(answers: Record<string, string | string[]>) {
     setStep('generating')
@@ -51,6 +95,7 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
       setBuildConfig(config)
       const result = await buildDeliverable(config)
       setOutput(result)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ output: result, buildConfig: config, savedAt: new Date().toISOString() }))
       setStep('output')
     } catch {
       setError('Generation failed. Please try again.')
@@ -157,6 +202,32 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--muted)', marginBottom: '32px', fontSize: '15px' }}>
               Have an idea already, or need help finding one?
             </p>
+
+            {savedBuild && entryMode === null && (
+              <div style={{
+                background: 'var(--surface)',
+                border: '1px solid rgba(0,229,160,0.2)',
+                borderRadius: '8px',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px',
+                marginBottom: '24px',
+              }}>
+                <div>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '0.1em', margin: '0 0 4px' }}>
+                    RESUME LAST BUILD — {timeAgo(savedBuild.savedAt)}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text)', margin: 0 }}>
+                    {savedBuild.buildConfig.idea?.title ?? savedBuild.buildConfig.missionId}
+                  </p>
+                </div>
+                <Button variant="secondary" onClick={handleRestore}>
+                  RESUME →
+                </Button>
+              </div>
+            )}
 
             {entryMode === null && (
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>

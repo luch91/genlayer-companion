@@ -185,6 +185,7 @@ export default function MissionsMode() {
         </div>
 
         <div>
+          {/* Projects & Milestones — always open for direct submission */}
           <div
             style={{
               fontFamily: 'var(--font-mono)',
@@ -195,10 +196,74 @@ export default function MissionsMode() {
               marginBottom: '12px',
             }}
           >
-            Open Contribution Tracks
+            Projects & Milestones
           </div>
+          {OPEN_CONTRIBUTIONS.filter((c) => c.id === 'projects').map((contrib) => (
+            <div
+              key={contrib.id}
+              onClick={() => setSelectedMissionId(contrib.id === selectedMissionId ? null : contrib.id)}
+              onMouseMove={handleTilt}
+              onMouseLeave={handleTiltReset}
+              style={{
+                background: selectedMissionId === contrib.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: `1px solid ${selectedMissionId === contrib.id ? 'var(--orange)' : 'var(--border)'}`,
+                borderRadius: '10px',
+                padding: '16px',
+                cursor: 'pointer',
+                transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+                willChange: 'transform',
+                boxShadow: selectedMissionId === contrib.id ? '0 4px 24px rgba(255,107,53,0.1)' : 'none',
+                marginBottom: '32px',
+              }}
+            >
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--orange)', marginBottom: '6px' }}>
+                {contrib.title}
+              </div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, marginBottom: selectedMissionId === contrib.id ? '12px' : '0' }}>
+                {contrib.description}
+              </div>
+              {selectedMissionId === contrib.id && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setBuildMissionId(contrib.id) }}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--orange)',
+                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: 'var(--orange)',
+                    cursor: 'pointer',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  BUILD →
+                </button>
+              )}
+            </div>
+          ))}
+
+          {/* Mission-based tracks — require an active published mission to submit */}
+          <div
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.12em',
+              color: 'var(--muted)',
+              textTransform: 'uppercase',
+              marginBottom: '6px',
+            }}
+          >
+            Mission-Based Tracks
+          </div>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 12px' }}>
+            These tracks are no longer open for direct submission. GenLayer publishes specific missions for them when there is a concrete need — watch the Builder Portal for announcements.
+          </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
-            {OPEN_CONTRIBUTIONS.map((contrib) => (
+            {OPEN_CONTRIBUTIONS.filter((c) => c.id !== 'projects').map((contrib) => (
               <div
                 key={contrib.id}
                 onClick={() => setSelectedMissionId(contrib.id === selectedMissionId ? null : contrib.id)}
@@ -208,39 +273,53 @@ export default function MissionsMode() {
                   background: selectedMissionId === contrib.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
                   backdropFilter: 'blur(12px)',
                   WebkitBackdropFilter: 'blur(12px)',
-                  border: `1px solid ${selectedMissionId === contrib.id ? 'var(--orange)' : 'var(--border)'}`,
+                  border: `1px solid ${selectedMissionId === contrib.id ? 'rgba(255,107,53,0.3)' : 'var(--border)'}`,
                   borderRadius: '10px',
                   padding: '16px',
                   cursor: 'pointer',
-                  transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+                  transition: 'border-color 0.2s ease, background 0.2s ease',
                   willChange: 'transform',
-                  boxShadow: selectedMissionId === contrib.id ? '0 4px 24px rgba(255,107,53,0.1)' : 'none',
+                  opacity: 0.65,
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--orange)', marginBottom: '6px' }}>
-                  {contrib.title}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--muted)' }}>
+                    {contrib.title}
+                  </div>
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.08em',
+                    color: 'var(--muted)', border: '1px solid var(--border)',
+                    borderRadius: '3px', padding: '1px 6px', flexShrink: 0,
+                  }}>
+                    VIA MISSION
+                  </span>
                 </div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, marginBottom: '10px' }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, marginBottom: selectedMissionId === contrib.id ? '10px' : '0' }}>
                   {contrib.description}
                 </div>
                 {selectedMissionId === contrib.id && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setBuildMissionId(contrib.id) }}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid var(--orange)',
-                      borderRadius: '4px',
-                      padding: '6px 12px',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      color: 'var(--orange)',
-                      cursor: 'pointer',
-                      letterSpacing: '0.05em',
-                    }}
-                  >
-                    BUILD →
-                  </button>
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 8px' }}>
+                      Direct submission requires an active GenLayer mission for this track. You can still build to prepare your content for when one is published.
+                    </p>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setBuildMissionId(contrib.id) }}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid var(--border)',
+                        borderRadius: '4px',
+                        padding: '6px 12px',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: 'var(--muted)',
+                        cursor: 'pointer',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      BUILD ANYWAY →
+                    </button>
+                  </div>
                 )}
               </div>
             ))}

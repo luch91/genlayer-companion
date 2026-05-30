@@ -353,12 +353,9 @@ export default function ModeGrid({ onSelect }: ModeGridProps) {
                   <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text)', lineHeight: 1.6, margin: 0 }}>
                     {m.description}
                   </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                  <div style={{ marginTop: 'auto' }}>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: m.color, letterSpacing: '0.05em' }}>
                       ENTER →
-                    </span>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--border)', letterSpacing: '0.08em' }}>
-                      {m.effect}
                     </span>
                   </div>
                 </button>
