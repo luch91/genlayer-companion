@@ -111,20 +111,37 @@ export default function Header({ mode, onHome }: HeaderProps) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {mode !== 'home' && (
-          <span
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-              letterSpacing: '0.1em',
-              color: 'var(--accent)',
-              background: 'rgba(0,229,160,0.1)',
-              border: '1px solid rgba(0,229,160,0.3)',
-              padding: '3px 10px',
-              borderRadius: '4px',
-            }}
-          >
-            {modeLabels[mode]}
-          </span>
+          <>
+            <button
+              onClick={onHome}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: 'var(--muted)',
+                cursor: 'pointer',
+                letterSpacing: '0.06em',
+                padding: 0,
+              }}
+            >
+              ← BACK
+            </button>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                letterSpacing: '0.1em',
+                color: 'var(--accent)',
+                background: 'rgba(0,229,160,0.1)',
+                border: '1px solid rgba(0,229,160,0.3)',
+                padding: '3px 10px',
+                borderRadius: '4px',
+              }}
+            >
+              {modeLabels[mode]}
+            </span>
+          </>
         )}
         <a
           href="https://genshipyard.com"
