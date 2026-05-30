@@ -1,13 +1,71 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
-import { getMissionSystemPrompt, getBuildPrompt, getMissionIdeasContext, getMissionChatContext, getMissionArtifacts, getArtifactBuildPrompt } from '@/lib/prompts/missions/index'
+import { getMissionSystemPrompt, getMissionIdeasContext, getMissionChatContext, getMissionArtifacts, getArtifactBuildPrompt } from '@/lib/prompts/missions/index'
 import { GENLAYER_BASE_PROMPT } from '@/lib/prompts/base'
 import type { Mode, IdeaConfig, BuildConfig, GeneratedOutput } from '@/types'
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  throw new Error('ANTHROPIC_API_KEY is not set in .env.local')
+async function groqChat(
+  systemPrompt: string,
+  messages: { role: string; content: string }[],
+  maxTokens: number
+): Promise<string> {
+  const key = process.env.GROQ_API_KEY
+  if (!key) throw new Error('GROQ_API_KEY is not set in .env.local')
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: maxTokens,
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
+    }),
+  })
+
+  if (!res.ok) throw new Error(`Groq error: ${res.status} ${await res.text()}`)
+
+  const data = await res.json()
+  const choice = data.choices?.[0]
+  if (choice?.finish_reason === 'length') throw new Error('Groq response truncated — token limit reached')
+  return choice?.message?.content ?? ''
 }
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+async function openrouterChat(
+  systemPrompt: string,
+  messages: { role: string; content: string }[],
+  maxTokens: number
+): Promise<string> {
+  const key = process.env.OPENROUTER_API_KEY
+  if (!key) throw new Error('OPENROUTER_API_KEY is not set in .env.local')
+
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://genlayer-builder-companion.vercel.app',
+      'X-Title': 'GenLayer Builder Companion',
+    },
+    body: JSON.stringify({
+      model: 'qwen/qwen3-coder-30b-a3b-instruct',
+      max_tokens: maxTokens,
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
+    }),
+  })
+
+  if (!res.ok) throw new Error(`OpenRouter error: ${res.status} ${await res.text()}`)
+
+  const data = await res.json()
+  const choice = data.choices?.[0]
+  if (choice?.finish_reason === 'length') throw new Error('OpenRouter response truncated — token limit reached')
+
+  let content = choice?.message?.content ?? ''
+  // Strip thinking blocks if the model emits them inline
+  content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+  return content
+}
 
 function parseJSON(raw: string) {
   const clean = raw.replace(/```json|```/g, '').trim()
@@ -26,14 +84,7 @@ export async function POST(req: NextRequest) {
         systemPrompt += `\n\nACTIVE MISSION CONTEXT — the user has selected this specific contribution track. All advice must be focused on it:\n${missionContext}`
       }
 
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages,
-      })
-
-      const message = response.content[0].type === 'text' ? response.content[0].text : ''
+      const message = await groqChat(systemPrompt, messages, 1024)
       return NextResponse.json({ type: 'chat', message })
     }
 
@@ -63,14 +114,7 @@ No markdown fences. No preamble. Only the JSON array.`
 
       const userPrompt = `Generate 5 ideas for the "${missionId}" contribution track. Every idea must be a valid, specific submission for that track — not a generic GenLayer project.`
 
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2048,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : '[]'
+      const raw = await groqChat(systemPrompt, [{ role: 'user', content: userPrompt }], 2048)
       const ideas = parseJSON(raw)
       return NextResponse.json({ type: 'ideas', ideas })
     }
@@ -82,13 +126,7 @@ No markdown fences. No preamble. Only the JSON array.`
       const results = await Promise.all(
         artifacts.map(async (artifact) => {
           const [system, user] = getArtifactBuildPrompt(buildConfig, artifact)
-          const response = await client.messages.create({
-            model: 'claude-sonnet-4-6',
-            max_tokens: 8192,
-            system,
-            messages: [{ role: 'user', content: user }],
-          })
-          const raw = response.content[0].type === 'text' ? response.content[0].text : ''
+          const raw = await openrouterChat(system, [{ role: 'user', content: user }], 8192)
           const content = (artifact === 'contract' || artifact === 'frontend' || artifact === 'prototype')
             ? raw.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim()
             : raw.trim()
