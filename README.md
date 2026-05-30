@@ -2,6 +2,8 @@
 
 An AI-powered community tool for the GenLayer ecosystem. It guides builders from idea to deployable output — generating Intelligent Contracts, frontends, and content across multiple contribution tracks.
 
+**Live:** https://genlayer-builder-companion.vercel.app
+
 ---
 
 ## What it does
@@ -22,8 +24,10 @@ The Builder Companion walks a user through five steps:
 - From Zero to GenLayer — end-to-end tutorial
 - Mini-Games for Community — multiplayer on-chain game
 
-**Open contributions** (always available):
-- Projects & Milestones
+**Always open for direct submission:**
+- Projects & Milestones — the primary open track; requires a public GitHub repo link for Portal submission
+
+**Mission-based tracks** (submission requires an active published mission from GenLayer):
 - Research & Analysis
 - Tools & Infrastructure
 - Community & Growth
@@ -182,7 +186,11 @@ The Export panel produces:
 | `package.json` | Project metadata with `genlayer-js` dependency |
 | `README.md` | Generated deployment guide |
 
-Downloaded as `genlayer-project.zip`. The frontend preview runs in-browser via a blob URL iframe before download.
+Downloaded as `genlayer-project.zip`. The frontend preview runs in-browser via a blob URL iframe — always in demo mode regardless of whether a contract address has been entered (demo mode is intentional; real contract interaction requires a live deployment).
+
+The frontend export card has two tabs:
+- **Interactive Demo** — preview, copy `app.js`, and download the ZIP with the real contract address baked in
+- **Hi-Fi Prototype** — preview and download the Figma-ready prototype HTML, with Figma import guide
 
 After download, the panel walks the user through deploying with **Netlify Drop** (drag-and-drop, no account required) or **Vercel** (requires GitHub).
 
@@ -190,6 +198,8 @@ Deployment flow:
 1. Deploy contract on [genshipyard.com](https://genshipyard.com)
 2. Copy the contract address
 3. Paste into the Export panel — the address is baked into `app.js` on download
+
+For **Projects & Milestones** submissions, the export panel also shows a GitHub repository guide — a public GitHub repo link is the only required field for Portal submission. Live deployment, demo links, and Shipyard deployment links are optional extras that earn additional points.
 
 ---
 
