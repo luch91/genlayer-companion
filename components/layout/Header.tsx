@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import type { Mode } from '@/types'
 
 interface HeaderProps {
@@ -16,6 +17,8 @@ const modeLabels: Record<Mode, string> = {
 }
 
 export default function Header({ mode, onHome }: HeaderProps) {
+  const [hovered, setHovered] = useState(false)
+
   return (
     <header
       style={{
@@ -35,6 +38,8 @@ export default function Header({ mode, onHome }: HeaderProps) {
     >
       <button
         onClick={onHome}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -45,28 +50,62 @@ export default function Header({ mode, onHome }: HeaderProps) {
           padding: 0,
         }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 97.76 91.93"
-          style={{ width: '28px', height: '28px', fill: 'var(--accent)', flexShrink: 0 }}
-          aria-label="GenLayer"
-        >
-          <polygon points="44.26 32.35 27.72 67.12 43.29 74.9 0 91.93 44.26 0 44.26 32.35" />
-          <polygon points="53.5 32.35 70.04 67.12 54.47 74.9 97.76 91.93 53.5 0 53.5 32.35" />
-          <polygon points="48.64 43.78 58.33 62.94 48.64 67.69 39.47 62.92 48.64 43.78" />
-        </svg>
         <span
           style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '10px',
-            color: 'var(--muted)',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            borderLeft: '1px solid var(--border)',
-            paddingLeft: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
           }}
         >
-          BUILDER COMPANION
+          {/* Handshake icon */}
+          <svg
+            viewBox="0 0 32 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              width: '28px',
+              height: '28px',
+              color: hovered ? 'var(--accent)' : 'var(--muted)',
+              filter: hovered ? 'drop-shadow(0 0 5px rgba(0,229,160,0.8))' : 'none',
+              transition: 'color 0.2s ease, filter 0.2s ease',
+              flexShrink: 0,
+            }}
+            aria-hidden="true"
+          >
+            {/* Left wrist + palm */}
+            <path d="M1 20 L8 20 L8 16"/>
+            {/* Left fingers */}
+            <line x1="8" y1="13" x2="16" y2="9"/>
+            <line x1="8" y1="16" x2="16" y2="13"/>
+            <line x1="8" y1="19" x2="15" y2="17"/>
+            {/* Left thumb */}
+            <line x1="8" y1="11" x2="14" y2="6"/>
+            {/* Right wrist + palm */}
+            <path d="M31 20 L24 20 L24 16"/>
+            {/* Right fingers (cross-interlocking with left) */}
+            <line x1="24" y1="13" x2="14" y2="9"/>
+            <line x1="24" y1="16" x2="14" y2="13"/>
+            <line x1="24" y1="19" x2="17" y2="17"/>
+            {/* Right thumb */}
+            <line x1="24" y1="11" x2="18" y2="6"/>
+          </svg>
+          {/* Text */}
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: hovered ? 'var(--accent)' : 'var(--text)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              transition: 'color 0.2s ease',
+            }}
+          >
+            BUILDER COMPANION
+          </span>
         </span>
       </button>
 
