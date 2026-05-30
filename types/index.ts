@@ -110,3 +110,39 @@ export interface TimeCommitment {
   value: string
   label: string
 }
+
+export interface AuditFinding {
+  id: number
+  label: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  applies: boolean
+  reason: string
+  fix: string
+}
+
+export interface AuditChecklist {
+  summary: string
+  critical_count: number
+  findings: AuditFinding[]
+  top_three: number[]
+  deploy_verdict: 'ready' | 'caution' | 'not ready'
+}
+
+export interface AuditArtifactResult {
+  passed: boolean
+  issues: string[]
+}
+
+export interface AuditReport {
+  passed: boolean
+  score: number
+  summary: string
+  artifacts: {
+    contract: AuditArtifactResult
+    frontend: AuditArtifactResult
+    markdown: AuditArtifactResult
+    readme: AuditArtifactResult
+  }
+  blockers: string[]
+  warnings: string[]
+}

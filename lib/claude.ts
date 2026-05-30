@@ -1,4 +1,4 @@
-import type { BuildConfig, IdeaConfig, IdeaItem, GeneratedOutput, Message, Mode, MissionId } from '@/types'
+import type { BuildConfig, IdeaConfig, IdeaItem, GeneratedOutput, Message, Mode, MissionId, AuditReport } from '@/types'
 
 export async function chatWithClaude(mode: Mode, messages: Message[], missionId?: MissionId): Promise<string> {
   const res = await fetch('/api/generate', {
@@ -31,4 +31,18 @@ export async function buildDeliverable(buildConfig: BuildConfig): Promise<Genera
   if (!res.ok) throw new Error('Build generation failed')
   const data = await res.json()
   return data.output
+}
+
+export async function runAudit(
+  generatedOutput: GeneratedOutput,
+  buildConfig: BuildConfig
+): Promise<AuditReport> {
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'audit', generatedOutput, buildConfig }),
+  })
+  if (!res.ok) throw new Error('Audit failed')
+  const data = await res.json()
+  return data.report
 }

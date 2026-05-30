@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { MissionId, BuildStep, IdeaItem, GeneratedOutput } from '@/types'
+import type { MissionId, BuildStep, IdeaItem, GeneratedOutput, BuildConfig } from '@/types'
 import { buildDeliverable } from '@/lib/claude'
 import IdeaGenerator from './IdeaGenerator'
 import QuestionForm from './QuestionForm'
@@ -40,13 +40,16 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
   const [idea, setIdea] = useState<IdeaItem | null>(null)
   const [customIdeaText, setCustomIdeaText] = useState('')
   const [output, setOutput] = useState<GeneratedOutput | null>(null)
+  const [buildConfig, setBuildConfig] = useState<BuildConfig | null>(null)
   const [error, setError] = useState('')
 
   async function handleAnswers(answers: Record<string, string | string[]>) {
     setStep('generating')
     setError('')
     try {
-      const result = await buildDeliverable({ missionId, idea, answers })
+      const config: BuildConfig = { missionId, idea, answers }
+      setBuildConfig(config)
+      const result = await buildDeliverable(config)
       setOutput(result)
       setStep('output')
     } catch {
@@ -357,8 +360,8 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
           </div>
         )}
 
-        {step === 'export' && output && (
-          <ExportPanel output={output} onBack={() => setStep('output')} />
+        {step === 'export' && output && buildConfig && (
+          <ExportPanel output={output} buildConfig={buildConfig} onBack={() => setStep('output')} />
         )}
       </div>
     </div>

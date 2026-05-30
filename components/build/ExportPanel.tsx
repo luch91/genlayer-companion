@@ -1,12 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import type { GeneratedOutput } from '@/types'
+import type { GeneratedOutput, BuildConfig, AuditChecklist } from '@/types'
 import { downloadHTML } from '@/lib/export/netlify'
+import { runAudit } from '@/lib/claude'
 import Button from '@/components/ui/Button'
+import LoadingDots from '@/components/ui/LoadingDots'
+import AuditReportPanel from './AuditReportPanel'
 
 interface ExportPanelProps {
   output: GeneratedOutput
+  buildConfig: BuildConfig
   onBack: () => void
 }
 
@@ -91,7 +95,7 @@ const VERCEL_STEPS = [
   },
 ]
 
-export default function ExportPanel({ output, onBack }: ExportPanelProps) {
+export default function ExportPanel({ output, buildConfig, onBack }: ExportPanelProps) {
   const [contractCopied, setContractCopied] = useState(false)
   const [contractAddress, setContractAddress] = useState('')
   const [markdownDownloaded, setMarkdownDownloaded] = useState(false)
@@ -102,6 +106,8 @@ export default function ExportPanel({ output, onBack }: ExportPanelProps) {
   const [prototypeBlobUrl, setPrototypeBlobUrl] = useState<string | null>(null)
   const [showFrontendPreview, setShowFrontendPreview] = useState(false)
   const [frontendBlobUrl, setFrontendBlobUrl] = useState<string | null>(null)
+  const [auditState, setAuditState] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [auditChecklist, setAuditChecklist] = useState<AuditChecklist | null>(null)
 
   // — Prototype preview —
   function openPrototypePreview() {
@@ -191,6 +197,17 @@ ${js}
     setMarkdownDownloaded(true)
   }
 
+  async function handleRunAudit() {
+    setAuditState('loading')
+    try {
+      const report = await runAudit(output, buildConfig)
+      setAuditChecklist(report)
+      setAuditState('done')
+    } catch {
+      setAuditState('idle')
+    }
+  }
+
   const locked = !!output.contract && !contractAddress.trim()
 
   return (
@@ -206,6 +223,68 @@ ${js}
           EXPORT
         </h3>
       </div>
+
+      {/* ── AUDIT NUDGE ── */}
+      {auditState === 'idle' && (
+        <div style={{
+          background: 'var(--surface)',
+          border: '1px solid rgba(255,107,53,0.3)',
+          borderRadius: '10px',
+          padding: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          flexWrap: 'wrap',
+        }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '22px', color: 'var(--orange)', flexShrink: 0 }}>
+            ⚠
+          </div>
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 4px' }}>
+              Before you deploy
+            </p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text)', lineHeight: 1.5, margin: 0 }}>
+              Run a 25-point security audit on your build.
+              Takes 15 seconds. Tells you exactly what to fix before you go live.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
+            <Button variant="primary" onClick={handleRunAudit}>
+              Run Security Audit
+            </Button>
+            <button
+              style={{ background: 'none', border: 'none', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', cursor: 'pointer', padding: 0 }}
+              onClick={() => setAuditState('done')}
+            >
+              Skip, I know what I&apos;m doing
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── AUDIT LOADING ── */}
+      {auditState === 'loading' && (
+        <div style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '10px',
+          padding: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px',
+        }}>
+          <LoadingDots />
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--muted)', margin: 0, letterSpacing: '0.05em' }}>
+            Auditing your contract and frontend...
+          </p>
+        </div>
+      )}
+
+      {/* ── AUDIT REPORT ── */}
+      {auditState === 'done' && auditChecklist && (
+        <AuditReportPanel report={auditChecklist} />
+      )}
 
       {/* ── INTELLIGENT CONTRACT ── */}
       {output.contract && (

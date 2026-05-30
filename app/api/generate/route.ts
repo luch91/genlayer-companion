@@ -146,6 +146,86 @@ No markdown fences. No preamble. Only the JSON array.`
       return NextResponse.json({ type: 'build', output })
     }
 
+    if (body.type === 'audit') {
+      const { generatedOutput, buildConfig } = body as { generatedOutput: GeneratedOutput; buildConfig: BuildConfig }
+
+      const systemPrompt = `You are a strict technical auditor for the GenLayer ecosystem. Your job is to review AI-generated project output — Python Intelligent Contract, HTML frontend, written content, and README — and produce an accurate quality report.
+
+You know GenLayer's rules exactly:
+
+INTELLIGENT CONTRACT RULES:
+- Must start with: from genlayer import *
+- Must have an __init__ method
+- Must have at least one @gl.public.write decorated method
+- Must have at least one @gl.public.read decorated method
+- Must use at least one of: gl.exec_prompt(), gl.get_webpage(), gl.eq_principle_prompt_comparative()
+- All AI-driven logic must use these GenLayer primitives — never raw Python HTTP calls or external libraries for AI tasks
+- Must follow Optimistic Democracy: validators run the contract independently, results compared via the Equivalence Principle
+
+FRONTEND RULES:
+- Must be a single self-contained HTML file — all CSS and JavaScript inline
+- Zero external CDN imports (no unpkg, cdnjs, jsdelivr, or any external script/link tags)
+- Must have a working demo/mock mode that activates when the CONTRACT_ADDRESS placeholder is not replaced
+- Demo mode must show realistic mock data — never a blank screen, error screen, or a gate that requires a wallet before anything renders
+- genlayer-js integration must use the correct patterns: createClient, readContract, writeContract
+
+CONTENT / MARKDOWN RULES:
+- Must accurately describe GenLayer concepts — no hallucinated API methods or wrong signatures
+- Must reference real tools: GenLayer Studio, Shipyard (genshipyard.com), GenScope
+- Must not reference gen-shipyard.vercel.app — that URL is outdated and wrong
+
+README RULES:
+- Must reference genshipyard.com for contract deployment — not gen-shipyard.vercel.app
+- Deployment steps must be accurate and complete
+- Must include the full flow: deploy contract on Shipyard → copy contract address → paste into frontend
+
+Return ONLY valid JSON matching exactly this structure. No markdown fences. No preamble. No explanation outside the JSON:
+{
+  "passed": boolean,
+  "score": number,
+  "summary": string,
+  "artifacts": {
+    "contract": { "passed": boolean, "issues": string[] },
+    "frontend": { "passed": boolean, "issues": string[] },
+    "markdown": { "passed": boolean, "issues": string[] },
+    "readme": { "passed": boolean, "issues": string[] }
+  },
+  "blockers": string[],
+  "warnings": string[]
+}
+
+Rules for the report:
+- "passed" at root level is true only if every present artifact passes
+- "score" is 0-100 — deduct points for each issue found, more for blockers than warnings
+- "blockers" are issues that would break the app or prevent deployment
+- "warnings" are issues worth noting but not critical
+- Only audit artifacts that are present — set "passed": true and "issues": [] for any artifact marked [not generated]`
+
+      const userPrompt = `Audit this GenLayer project output.
+
+MISSION: ${buildConfig.missionId}
+IDEA: ${buildConfig.idea?.title ?? 'Not specified'}
+DESCRIPTION: ${buildConfig.idea?.description ?? 'Not specified'}
+
+--- CONTRACT ---
+${generatedOutput.contract ?? '[not generated]'}
+
+--- FRONTEND ---
+${generatedOutput.frontend ?? '[not generated]'}
+
+--- CONTENT ---
+${generatedOutput.markdown ?? '[not generated]'}
+
+--- README ---
+${generatedOutput.readme ?? '[not generated]'}
+
+Review each artifact strictly against GenLayer's rules. Flag anything that would break the app, prevent deployment, or misrepresent GenLayer.`
+
+      const raw = await openrouterChat(systemPrompt, [{ role: 'user', content: userPrompt }], 4096)
+      const report = parseJSON(raw)
+      return NextResponse.json({ type: 'audit', report })
+    }
+
     return NextResponse.json({ error: 'Unknown request type' }, { status: 400 })
   } catch (err) {
     console.error('/api/generate error:', err)
