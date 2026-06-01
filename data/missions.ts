@@ -19,6 +19,8 @@ export const MISSIONS_DATA: Mission[] = [
     ],
     chatSeed:
       "I'm here to help you win the From Zero to GenLayer mission. Tell me your background and I'll help you design a tutorial that stands out.",
+    status: 'open',
+    deadline: null,
   },
   {
     id: 'minigame',
@@ -38,6 +40,8 @@ export const MISSIONS_DATA: Mission[] = [
     ],
     chatSeed:
       "Let's build your GenLayer mini-game! What kind of game are you thinking? I'll help you design the contract architecture and frontend.",
+    status: 'open',
+    deadline: null,
   },
 ]
 
@@ -45,14 +49,14 @@ export const OPEN_CONTRIBUTIONS: OpenContribution[] = [
   {
     id: 'projects',
     title: 'Projects & Milestones',
-    description: 'Build something real with GenLayer. Any project — DeFi, social, gaming, tooling — that uses an Intelligent Contract.',
+    description: "Showcase your project from MVP to growth milestones. GenLayer's take on early ecosystem grants — earn rewards as you build and reach new stages. Significant achievements get amplification across GenLayer's channels.",
     actions: [
-      'Identify a real problem to solve',
-      'Design and deploy an Intelligent Contract',
-      'Build a frontend or CLI interface',
-      'Document and share your project',
+      'Start with a working MVP — any domain that uses an Intelligent Contract',
+      'Submit to the Builder Portal and define your milestone roadmap',
+      'Earn rewards incrementally as you hit each milestone',
+      'Get amplified across GenLayer\'s channels for significant achievements',
     ],
-    chatSeed: "Tell me what you want to build and I'll help you turn it into a GenLayer project.",
+    chatSeed: "Tell me what you're building — even at MVP stage. I'll help you design the Intelligent Contract, scope your MVP, and plan your milestone roadmap for GenLayer's ecosystem grant programme.",
   },
   {
     id: 'research',

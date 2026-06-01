@@ -21,6 +21,7 @@ export interface GeneratedOutput {
   prototype?: string
   markdown?: string
   readme?: string
+  test?: string
 }
 
 export interface Message {
@@ -72,6 +73,8 @@ export interface Mission {
   description: string
   requirements: string[]
   chatSeed: string
+  status: 'open' | 'closed'
+  deadline: string | null
 }
 
 export interface OpenContribution {

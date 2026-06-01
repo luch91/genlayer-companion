@@ -87,6 +87,13 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
     setStep('output')
   }
 
+  function handleOutputChange(updated: GeneratedOutput) {
+    setOutput(updated)
+    if (buildConfig) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ output: updated, buildConfig, savedAt: new Date().toISOString() }))
+    }
+  }
+
   async function handleAnswers(answers: Record<string, string | string[]>) {
     setStep('generating')
     setError('')
@@ -425,9 +432,14 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
           </div>
         )}
 
-        {step === 'output' && output && (
+        {step === 'output' && output && buildConfig && (
           <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
-            <GeneratedOutputView output={output} onContinue={() => setStep('export')} />
+            <GeneratedOutputView
+              output={output}
+              buildConfig={buildConfig}
+              onOutputChange={handleOutputChange}
+              onContinue={() => setStep('export')}
+            />
           </div>
         )}
 

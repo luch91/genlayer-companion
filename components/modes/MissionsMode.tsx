@@ -21,12 +21,15 @@ function handleTiltReset(e: React.MouseEvent<HTMLDivElement>) {
 }
 
 export default function MissionsMode() {
-  const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
+  const [projectsSelected, setProjectsSelected] = useState(false)
   const [buildMissionId, setBuildMissionId] = useState<MissionId | null>(null)
 
-  const activeMission = MISSIONS_DATA.find((m) => m.id === selectedMissionId)
-  const activeContrib = OPEN_CONTRIBUTIONS.find((c) => c.id === selectedMissionId)
-  const seedMessage = activeMission?.chatSeed || activeContrib?.chatSeed
+  const projectsContrib = OPEN_CONTRIBUTIONS.find((c) => c.id === 'projects')!
+
+  const inactiveTracks: { id: string; title: string; description: string; badge: string | null }[] = [
+    ...MISSIONS_DATA.map((m) => ({ id: m.id, title: m.title, description: m.description, badge: m.badge })),
+    ...OPEN_CONTRIBUTIONS.filter((c) => c.id !== 'projects').map((c) => ({ id: c.id, title: c.title, description: c.description, badge: null })),
+  ]
 
   if (buildMissionId) {
     return <BuildWizard missionId={buildMissionId} onClose={() => setBuildMissionId(null)} />
@@ -60,7 +63,8 @@ export default function MissionsMode() {
           Live Builder Portal missions — select one to plan and build your submission.
         </p>
 
-        <div style={{ marginBottom: '32px' }}>
+        {/* Projects & Milestones — always open, featured */}
+        <div style={{ marginBottom: '40px' }}>
           <div
             style={{
               fontFamily: 'var(--font-mono)',
@@ -71,182 +75,124 @@ export default function MissionsMode() {
               marginBottom: '12px',
             }}
           >
-            Active Missions
+            Open for Submission
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {MISSIONS_DATA.map((mission) => (
-              <div
-                key={mission.id}
+
+          <div
+            onMouseMove={handleTilt}
+            onMouseLeave={handleTiltReset}
+            onClick={() => setProjectsSelected((v) => !v)}
+            style={{
+              background: projectsSelected ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: `1px solid ${projectsSelected ? 'var(--accent)' : 'rgba(0,229,160,0.3)'}`,
+              borderRadius: '12px',
+              padding: '28px 32px',
+              cursor: 'pointer',
+              transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+              willChange: 'transform',
+              boxShadow: projectsSelected
+                ? '0 4px 32px rgba(0,229,160,0.12)'
+                : '0 2px 24px rgba(0,229,160,0.04)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+              <span
                 style={{
-                  background: selectedMissionId === mission.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  border: `1px solid ${selectedMissionId === mission.id ? 'var(--accent)' : 'var(--border)'}`,
-                  borderRadius: '12px',
-                  padding: '20px 24px',
-                  cursor: 'pointer',
-                  transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
-                  willChange: 'transform',
-                  boxShadow: selectedMissionId === mission.id ? '0 4px 32px rgba(0,229,160,0.1)' : 'none',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: 'var(--bg)',
+                  background: 'var(--accent)',
+                  padding: '4px 12px',
+                  borderRadius: '4px',
+                  letterSpacing: '0.1em',
                 }}
-                onMouseMove={handleTilt}
-                onMouseLeave={handleTiltReset}
-                onClick={() => setSelectedMissionId(mission.id === selectedMissionId ? null : mission.id)}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
-                  <div>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '10px',
-                        color: 'var(--accent)',
-                        background: 'rgba(0,229,160,0.1)',
-                        border: '1px solid rgba(0,229,160,0.25)',
-                        padding: '2px 8px',
-                        borderRadius: '3px',
-                        letterSpacing: '0.08em',
-                        marginRight: '8px',
-                      }}
-                    >
-                      {mission.badge}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '10px',
-                        color: 'var(--muted)',
-                        letterSpacing: '0.06em',
-                      }}
-                    >
-                      {mission.subtitle}
-                    </span>
-                  </div>
-                </div>
+                ACTIVE
+              </span>
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  color: 'var(--muted)',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                Open Contribution — Always Accepting Submissions
+              </span>
+            </div>
 
-                <div
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '24px',
-                    letterSpacing: '0.05em',
-                    color: 'var(--text)',
-                    marginBottom: '8px',
-                  }}
-                >
-                  {mission.title}
+            <div
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '36px',
+                letterSpacing: '0.05em',
+                color: 'var(--text)',
+                marginBottom: '10px',
+              }}
+            >
+              Projects & Milestones
+            </div>
+
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '14px',
+                color: 'var(--muted)',
+                lineHeight: 1.6,
+                marginBottom: projectsSelected ? '20px' : '0',
+              }}
+            >
+              {projectsContrib.description}
+            </div>
+
+            {projectsSelected && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid var(--border)',
+                }}
+              >
+                <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {projectsContrib.actions.map((a, i) => (
+                    <li key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text)', lineHeight: 1.5 }}>
+                      {a}
+                    </li>
+                  ))}
+                </ul>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)' }}>
+                  <span style={{ color: 'var(--accent)' }}>SUBMISSION —</span> Start at MVP — rewards are earned incrementally as you hit each milestone on the Builder Portal
                 </div>
-                <div
+                <button
+                  onClick={(e) => { e.stopPropagation(); setBuildMissionId('projects') }}
                   style={{
-                    fontFamily: 'var(--font-body)',
+                    background: 'var(--accent)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '12px 28px',
+                    fontFamily: 'var(--font-mono)',
                     fontSize: '13px',
-                    color: 'var(--muted)',
-                    lineHeight: 1.6,
-                    marginBottom: '12px',
+                    fontWeight: 700,
+                    color: 'var(--bg)',
+                    cursor: 'pointer',
+                    letterSpacing: '0.06em',
+                    alignSelf: 'flex-start',
                   }}
                 >
-                  {mission.description}
-                </div>
-
-                {selectedMissionId === mission.id && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)', letterSpacing: '0.1em', marginBottom: '8px' }}>REQUIREMENTS</div>
-                      <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {mission.requirements.map((r, i) => (
-                          <li key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text)', lineHeight: 1.5 }}>{r}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)' }}>
-                      <span style={{ color: 'var(--accent)' }}>PRIZE —</span> {mission.prize}
-                    </div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setBuildMissionId(mission.id) }}
-                      style={{
-                        background: 'var(--accent)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '10px 20px',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: 'var(--bg)',
-                        cursor: 'pointer',
-                        letterSpacing: '0.05em',
-                        alignSelf: 'flex-start',
-                      }}
-                    >
-                      START BUILDING →
-                    </button>
-                  </div>
-                )}
+                  START BUILDING →
+                </button>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
+        {/* Mission-based tracks — informational only, not buildable */}
         <div>
-          {/* Projects & Milestones — always open for direct submission */}
-          <div
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '10px',
-              letterSpacing: '0.12em',
-              color: 'var(--orange)',
-              textTransform: 'uppercase',
-              marginBottom: '12px',
-            }}
-          >
-            Projects & Milestones
-          </div>
-          {OPEN_CONTRIBUTIONS.filter((c) => c.id === 'projects').map((contrib) => (
-            <div
-              key={contrib.id}
-              onClick={() => setSelectedMissionId(contrib.id === selectedMissionId ? null : contrib.id)}
-              onMouseMove={handleTilt}
-              onMouseLeave={handleTiltReset}
-              style={{
-                background: selectedMissionId === contrib.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: `1px solid ${selectedMissionId === contrib.id ? 'var(--orange)' : 'var(--border)'}`,
-                borderRadius: '10px',
-                padding: '16px',
-                cursor: 'pointer',
-                transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
-                willChange: 'transform',
-                boxShadow: selectedMissionId === contrib.id ? '0 4px 24px rgba(255,107,53,0.1)' : 'none',
-                marginBottom: '32px',
-              }}
-            >
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--orange)', marginBottom: '6px' }}>
-                {contrib.title}
-              </div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, marginBottom: selectedMissionId === contrib.id ? '12px' : '0' }}>
-                {contrib.description}
-              </div>
-              {selectedMissionId === contrib.id && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); setBuildMissionId(contrib.id) }}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid var(--orange)',
-                    borderRadius: '4px',
-                    padding: '6px 12px',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: 'var(--orange)',
-                    cursor: 'pointer',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  BUILD →
-                </button>
-              )}
-            </div>
-          ))}
-
-          {/* Mission-based tracks — require an active published mission to submit */}
           <div
             style={{
               fontFamily: 'var(--font-mono)',
@@ -259,68 +205,49 @@ export default function MissionsMode() {
           >
             Mission-Based Tracks
           </div>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 12px' }}>
-            These tracks are no longer open for direct submission. GenLayer publishes specific missions for them when there is a concrete need — watch the Builder Portal for announcements.
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 14px' }}>
+            These tracks are not open for direct submission. GenLayer publishes specific missions for them when there is a concrete need — watch the Builder Portal for announcements.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
-            {OPEN_CONTRIBUTIONS.filter((c) => c.id !== 'projects').map((contrib) => (
+            {inactiveTracks.map((track) => (
               <div
-                key={contrib.id}
-                onClick={() => setSelectedMissionId(contrib.id === selectedMissionId ? null : contrib.id)}
-                onMouseMove={handleTilt}
-                onMouseLeave={handleTiltReset}
+                key={track.id}
                 style={{
-                  background: selectedMissionId === contrib.id ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
+                  background: 'rgba(9,19,28,0.72)',
                   backdropFilter: 'blur(12px)',
                   WebkitBackdropFilter: 'blur(12px)',
-                  border: `1px solid ${selectedMissionId === contrib.id ? 'rgba(255,107,53,0.3)' : 'var(--border)'}`,
+                  border: '1px solid var(--border)',
                   borderRadius: '10px',
                   padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'border-color 0.2s ease, background 0.2s ease',
-                  willChange: 'transform',
-                  opacity: 0.65,
+                  opacity: 0.5,
+                  cursor: 'default',
+                  userSelect: 'none',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: 'var(--muted)' }}>
-                    {contrib.title}
+                    {track.title}
                   </div>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.08em',
-                    color: 'var(--muted)', border: '1px solid var(--border)',
-                    borderRadius: '3px', padding: '1px 6px', flexShrink: 0,
-                  }}>
-                    VIA MISSION
-                  </span>
-                </div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5, marginBottom: selectedMissionId === contrib.id ? '10px' : '0' }}>
-                  {contrib.description}
-                </div>
-                {selectedMissionId === contrib.id && (
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 8px' }}>
-                      Direct submission requires an active GenLayer mission for this track. You can still build to prepare your content for when one is published.
-                    </p>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setBuildMissionId(contrib.id) }}
+                  {track.badge && (
+                    <span
                       style={{
-                        background: 'transparent',
-                        border: '1px solid var(--border)',
-                        borderRadius: '4px',
-                        padding: '6px 12px',
                         fontFamily: 'var(--font-mono)',
-                        fontSize: '11px',
-                        fontWeight: 700,
+                        fontSize: '9px',
+                        letterSpacing: '0.08em',
                         color: 'var(--muted)',
-                        cursor: 'pointer',
-                        letterSpacing: '0.05em',
+                        border: '1px solid var(--border)',
+                        borderRadius: '3px',
+                        padding: '1px 6px',
+                        flexShrink: 0,
                       }}
                     >
-                      BUILD ANYWAY →
-                    </button>
-                  </div>
-                )}
+                      {track.badge}
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>
+                  {track.description}
+                </div>
               </div>
             ))}
           </div>
@@ -329,8 +256,12 @@ export default function MissionsMode() {
 
       <ChatPanel
         mode="missions"
-        missionId={selectedMissionId ?? undefined}
-        seedMessage={seedMessage || "I'm your GenLayer build coach. Select a mission to get started, or ask me anything about the Builder Portal missions."}
+        missionId={projectsSelected ? 'projects' : undefined}
+        seedMessage={
+          projectsSelected
+            ? projectsContrib.chatSeed
+            : "I'm your GenLayer build coach. Select Projects & Milestones to get started, or ask me anything about the Builder Portal."
+        }
       />
     </div>
   )

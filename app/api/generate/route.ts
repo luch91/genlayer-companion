@@ -121,14 +121,14 @@ No markdown fences. No preamble. Only the JSON array.`
     }
 
     if (body.type === 'build') {
-      const { buildConfig } = body as { buildConfig: BuildConfig }
-      const artifacts = getMissionArtifacts(buildConfig.missionId)
+      const { buildConfig, singleArtifact } = body as { buildConfig: BuildConfig; singleArtifact?: string }
+      const artifacts = singleArtifact ? [singleArtifact] : getMissionArtifacts(buildConfig.missionId)
 
       const results = await Promise.all(
         artifacts.map(async (artifact) => {
           const [system, user] = getArtifactBuildPrompt(buildConfig, artifact)
           const raw = await openrouterChat(system, [{ role: 'user', content: user }], 8192)
-          const content = (artifact === 'contract' || artifact === 'frontend' || artifact === 'prototype')
+          const content = (artifact === 'contract' || artifact === 'frontend' || artifact === 'prototype' || artifact === 'test')
             ? raw.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim()
             : raw.trim()
           return { artifact, content }
@@ -142,6 +142,7 @@ No markdown fences. No preamble. Only the JSON array.`
         if (artifact === 'prototype') output.prototype = content
         if (artifact === 'markdown') output.markdown = content
         if (artifact === 'readme') output.readme = content
+        if (artifact === 'test') output.test = content
       }
 
       return NextResponse.json({ type: 'build', output })

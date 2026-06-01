@@ -46,3 +46,14 @@ export async function runAudit(
   const data = await res.json()
   return data.report
 }
+
+export async function regenerateArtifact(buildConfig: BuildConfig, artifact: string): Promise<GeneratedOutput> {
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'build', buildConfig, singleArtifact: artifact }),
+  })
+  if (!res.ok) throw new Error('Regeneration failed')
+  const data = await res.json()
+  return data.output
+}

@@ -1,28 +1,41 @@
 'use client'
 
 import { useState } from 'react'
-import type { GeneratedOutput } from '@/types'
+import type { BuildConfig, GeneratedOutput } from '@/types'
+import { regenerateArtifact } from '@/lib/claude'
 import Button from '@/components/ui/Button'
 
 interface GeneratedOutputProps {
   output: GeneratedOutput
+  buildConfig: BuildConfig
+  onOutputChange: (updated: GeneratedOutput) => void
   onContinue: () => void
 }
 
-type Tab = 'contract' | 'frontend' | 'content' | 'readme'
+type Tab = 'contract' | 'frontend' | 'content' | 'readme' | 'test'
 
-export default function GeneratedOutputView({ output, onContinue }: GeneratedOutputProps) {
+const tabToArtifact: Record<Tab, string> = {
+  contract: 'contract',
+  frontend: 'frontend',
+  content: 'markdown',
+  readme: 'readme',
+  test: 'test',
+}
+
+export default function GeneratedOutputView({ output, buildConfig, onOutputChange, onContinue }: GeneratedOutputProps) {
   const allTabs: { id: Tab; label: string; content?: string }[] = [
     { id: 'contract' as Tab, label: 'CONTRACT', content: output.contract },
     { id: 'frontend' as Tab, label: 'FRONTEND', content: output.frontend },
     { id: 'content' as Tab, label: 'CONTENT', content: output.markdown },
     { id: 'readme' as Tab, label: 'README', content: output.readme },
+    { id: 'test' as Tab, label: 'TEST FILE', content: output.test },
   ]
   const tabs = allTabs.filter((t) => !!t.content)
 
   const [activeTab, setActiveTab] = useState<Tab>(tabs[0]?.id || 'contract')
   const [showPreview, setShowPreview] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [regenerating, setRegenerating] = useState<Tab | null>(null)
 
   const activeContent = tabs.find((t) => t.id === activeTab)?.content || ''
 
@@ -30,6 +43,26 @@ export default function GeneratedOutputView({ output, onContinue }: GeneratedOut
     navigator.clipboard.writeText(activeContent)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  async function handleRegenerate() {
+    if (regenerating) return
+    setRegenerating(activeTab)
+    try {
+      const partial = await regenerateArtifact(buildConfig, tabToArtifact[activeTab])
+      const updated: GeneratedOutput = { ...output }
+      if (partial.contract !== undefined) updated.contract = partial.contract
+      if (partial.frontend !== undefined) updated.frontend = partial.frontend
+      if (partial.prototype !== undefined) updated.prototype = partial.prototype
+      if (partial.markdown !== undefined) updated.markdown = partial.markdown
+      if (partial.readme !== undefined) updated.readme = partial.readme
+      if (partial.test !== undefined) updated.test = partial.test
+      onOutputChange(updated)
+    } catch {
+      // existing content stays intact on failure
+    } finally {
+      setRegenerating(null)
+    }
   }
 
   return (
@@ -63,6 +96,14 @@ export default function GeneratedOutputView({ output, onContinue }: GeneratedOut
           )}
           <Button variant="ghost" size="sm" onClick={copyContent}>
             {copied ? 'COPIED!' : 'COPY'}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRegenerate}
+            disabled={regenerating !== null}
+          >
+            {regenerating === activeTab ? '...' : 'REGENERATE'}
           </Button>
         </div>
       </div>

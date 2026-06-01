@@ -27,7 +27,7 @@ export function getMissionChatContext(missionId: MissionId): string {
 
     minigame: `The user is working on the "Mini-Games for Community" special mission. They must build a multiplayer on-chain mini-game where an Intelligent Contract is the core game engine — handling all state, turns, and outcomes via Optimistic Democracy. Requirements: 2+ players, 5–15 minute sessions, replayable weekly, XP leaderboard on-chain. Help them design the game concept, contract architecture, and frontend.`,
 
-    projects: `The user is working on the "Projects & Milestones" open contribution track. They need to build a real-world application that solves a genuine problem using an Intelligent Contract — DeFi, social, gaming, tooling, or any domain. Help them identify a specific problem, design the Intelligent Contract using gl primitives, and plan the frontend or CLI interface.`,
+    projects: `The user is working on the "Projects & Milestones" open contribution track — GenLayer's ecosystem grant programme. Builders showcase projects from MVP to growth milestones, earning rewards incrementally as they build. Significant achievements get amplification across GenLayer's channels. Help the user: identify a real problem worth solving, design an Intelligent Contract using gl primitives, scope a strong MVP they can ship quickly, and think through a milestone roadmap for what comes after launch.`,
 
     research: `The user is working on the "Research & Analysis" open contribution track. They need to publish original research on GenLayer — consensus analysis, AI alignment, use case exploration, or comparative studies — as a paper, blog post, or technical thread. Help them frame a specific research question, outline methodology, and structure their findings.`,
 
@@ -55,9 +55,9 @@ Ideas MUST be multiplayer mini-games where an Intelligent Contract IS the core g
 Each idea must name a concrete game concept (e.g. "rock-paper-scissors with AI referee", "on-chain trivia blitz", "word-guessing with AI judge"), explain how Optimistic Democracy is integral to gameplay (not bolted on), and describe how the contract manages turns and results.
 Requirements: 2+ players, 5–15 minute sessions, replayable weekly, XP leaderboard stored on-chain.`,
 
-    projects: `This is for the "Projects & Milestones" open contribution track.
-Ideas MUST be real-world applications that solve a genuine problem using an Intelligent Contract — DeFi, social, gaming, tooling, or any domain.
-Each idea must identify the specific problem being solved, explain how the contract's AI capabilities (gl.exec_prompt, gl.get_webpage, gl.eq_principle_prompt_comparative) add unique value over a traditional smart contract, and describe the frontend or CLI interface.`,
+    projects: `This is for the "Projects & Milestones" open contribution track — GenLayer's ecosystem grant programme.
+Ideas MUST be real-world applications that can be shipped as a working MVP and grown through milestones. Any domain: DeFi, social, gaming, tooling, or other.
+Each idea must identify the specific problem being solved, explain how the contract's AI capabilities (gl.exec_prompt, gl.get_webpage, gl.eq_principle_prompt_comparative) add unique value over a traditional smart contract, describe the MVP scope (what is the minimum shippable version), and hint at what growth milestones beyond launch would look like.`,
 
     research: `This is for the "Research & Analysis" open contribution track.
 Ideas MUST be original research topics publishable as a paper, blog post, or technical thread — not apps or tools.
@@ -85,10 +85,10 @@ Each idea must name a specific GenLayer concept or workflow to teach, specify th
 
 export function getMissionArtifacts(missionId: MissionId): string[] {
   const map: Record<MissionId, string[]> = {
-    tutorial:       ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
-    minigame:       ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
-    projects:       ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
-    educational:    ['contract', 'frontend', 'prototype', 'markdown', 'readme'],
+    tutorial:       ['contract', 'frontend', 'prototype', 'markdown', 'readme', 'test'],
+    minigame:       ['contract', 'frontend', 'prototype', 'markdown', 'readme', 'test'],
+    projects:       ['contract', 'frontend', 'prototype', 'markdown', 'readme', 'test'],
+    educational:    ['contract', 'frontend', 'prototype', 'markdown', 'readme', 'test'],
     tools:          ['markdown', 'readme'],
     research:       ['markdown', 'readme'],
     community:      ['markdown', 'readme'],
@@ -149,6 +149,22 @@ Output raw Markdown only. No JSON wrapping.`,
     readme: `From the specifications above, generate ONLY the README and setup/deployment guide in Markdown.
 Cover GenLayer Studio setup, Shipyard contract deployment, and Netlify Drop or Vercel for the frontend where applicable.
 Output raw Markdown only. No JSON wrapping.`,
+
+    test: `From the specifications above, generate ONLY a GenLayer Studio test file in Python.
+
+This is a pytest-compatible test suite that validates the Intelligent Contract's behaviour in GenLayer Studio.
+
+Structure:
+1. Imports: \`import pytest\` and GenLayer testing utilities (\`from genlayer.testing import *\`)
+2. One test function per contract behaviour:
+   - \`test_deploy()\` — deploys the contract and asserts the initial state values are correct
+   - One test per @gl.public.write method — call the method with realistic input and assert the resulting state
+   - One test per @gl.public.read method — assert it returns the correct value for a known state
+3. Use realistic test data that matches the project domain — not generic "foo", "bar", or "test123"
+4. Add a single inline comment above each test function explaining what behaviour it validates
+5. Tests must be deterministic — when the contract uses gl.exec_prompt or gl.get_webpage, mock or fix the expected output in the assertion using equivalence-aware checks
+
+Output raw Python code only. No JSON wrapping. No markdown fences. No explanation before or after.`,
   }
 
   const system = `${GENLAYER_BASE_PROMPT}
