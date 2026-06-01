@@ -12,9 +12,9 @@ The Builder Companion walks a user through five steps:
 
 1. **Find an idea** — describe your own or let AI generate five tailored suggestions
 2. **Customize** — answer mission-specific questions that shape the output
-3. **Generate** — AI builds all artifacts in parallel (contract, frontend, README, content)
+3. **Generate** — AI builds all artifacts in parallel (contract, frontend, test file, README, content)
 4. **Review** — inspect the full generated output before moving forward
-5. **Export** — run a 25-point audit, preview in-browser, download as ZIP, deploy
+5. **Export** — run a 5-point security audit, preview in-browser, download as ZIP, deploy
 
 ---
 
@@ -97,9 +97,9 @@ components/
     BuildWizard.tsx          Five-step wizard (ideas → questions → generating → output → export)
     IdeaGenerator.tsx        AI idea generation UI
     QuestionForm.tsx         Mission-specific customization questions
-    GeneratedOutput.tsx      Output viewer (contract, frontend, markdown, readme tabs)
+    GeneratedOutput.tsx      Output viewer (contract, frontend, markdown, readme, test tabs) with per-artifact REGENERATE and inline contract EDIT
     ExportPanel.tsx          Download, preview, deploy, and audit
-    AuditReportPanel.tsx     25-point audit results display
+    AuditReportPanel.tsx     5-point audit results display
 
   chat/ChatPanel.tsx         AI chat sidebar (context-aware per mode)
   home/ModeGrid.tsx          Landing mode selector
@@ -115,10 +115,11 @@ data/
   backgrounds.ts             User background options
 
 lib/
-  claude.ts                  Client-side fetch helpers (chatWithClaude, generateIdeas, buildDeliverable, runAudit)
+  claude.ts                  Client-side fetch helpers (chatWithClaude, generateIdeas, buildDeliverable, runAudit, regenerateArtifact)
+  storage.ts                 Build history storage (getBuildHistory, saveBuild, updateBuild, deleteBuild, timeAgo)
   prompts/
     base.ts                  GENLAYER_BASE_PROMPT — GenLayer API rules injected into every build
-    audit.ts                 25-point audit prompt (getAuditPrompt)
+    audit.ts                 5-point audit prompt (getAuditPrompt)
     missions/                Per-mission system prompts (one file per track)
   export/
     netlify.ts               HTML download helper
@@ -144,32 +145,35 @@ The single route (`app/api/generate/route.ts`) handles four request types:
 | `chat` | Groq | 1024 | Mode-aware AI chat |
 | `ideas` | Groq | 2048 | Generate 5 tailored ideas |
 | `build` | OpenRouter | 8192 per artifact | Generate all project artifacts in parallel |
-| `audit` | OpenRouter | 4096 | Run 25-point pre-deploy audit |
+| `audit` | OpenRouter | 4096 | Run 5-point pre-deploy security audit |
 
-Build artifacts are generated in parallel — one OpenRouter call per artifact — then assembled into a `GeneratedOutput` object.
-
----
-
-## The 25-point audit
-
-Before a user exports their build, they're prompted to run a quality and correctness audit. The audit checks for:
-
-- GenLayer-specific issues (wrong API patterns, missing `from genlayer import *`, incorrect `gl.exec_prompt` usage)
-- Frontend issues (external CDN imports, missing demo mode, broken genlayer-js patterns)
-- Content issues (hallucinated API methods, outdated URLs like `gen-shipyard.vercel.app`)
-- Production risks (unbounded storage, no error handling, prompt injection vectors, rate limiting gaps)
-
-Returns a verdict (`ready` / `caution` / `not ready`), a ranked list of top issues to fix, and all 25 findings with specific reasons and fix actions.
+Build artifacts are generated in parallel — one OpenRouter call per artifact — then assembled into a `GeneratedOutput` object. Individual artifacts can also be regenerated in isolation without touching the rest of the build.
 
 ---
 
-## Build persistence
+## The 5-point security audit
 
-Completed builds are saved to `localStorage` automatically. If a user closes their browser or laptop mid-session, the next time they open the wizard a restore banner appears with the idea title and timestamp. One click brings them back to their output.
+Before a user exports their build, they're prompted to run a pre-deploy security audit. The audit checks for five GenLayer-specific risks:
 
-- Storage key: `genlayer_last_build`
-- Expiry: 7 days
+1. **Prompt injection** — raw user input passed into `gl.exec_prompt` without sanitization
+2. **Hardcoded secrets** — API keys, wallet addresses, or tokens in contract source or frontend
+3. **No frontend error handling** — `readContract`/`writeContract` calls without try/catch or user-facing error states
+4. **Unvalidated `gl.get_webpage` responses** — raw external content passed into contract logic without structure checks or fallbacks
+5. **Unbounded state growth** — contract storage that appends without any size cap, pruning, or pagination
+
+Returns a verdict (`ready` / `caution` / `not ready`), a ranked list of top issues to fix, and all 5 findings with reasons and concrete fix actions referenced to the actual generated code.
+
+---
+
+## Build history
+
+Completed builds are saved to `localStorage` automatically and displayed in a history panel on the Missions screen. Up to 5 builds are retained. Any session can be resumed with one click — the wizard reopens at the Output step with all generated artifacts restored.
+
+- Storage key: `genlayer_build_history`
+- Max entries: 5 (oldest removed when limit is exceeded)
+- Expiry: 7 days per entry
 - Scope: per browser / per device (no account required)
+- Legacy migration: old `genlayer_last_build` key is automatically migrated on first load
 
 ---
 
