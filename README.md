@@ -2,7 +2,7 @@
 
 An AI-powered community tool for the GenLayer ecosystem. It guides builders from idea to deployable output — generating Intelligent Contracts, frontends, and content across multiple contribution tracks.
 
-**Live:** https://genlayer-builder-companion.vercel.app
+**Live:** https://buildercompanion.vercel.app
 
 ---
 
