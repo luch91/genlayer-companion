@@ -149,7 +149,7 @@ ${output.frontend}
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
     const addr = contractAddress.trim()
-    const js = addr ? output.frontend.replace(/CONTRACT_ADDRESS/g, addr) : output.frontend
+    const js = addr ? output.frontend.replace(/(['"])CONTRACT_ADDRESS\1/g, `$1${addr}$1`) : output.frontend
     const previewHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -415,7 +415,7 @@ ${js}
                   onClick={() => {
                     if (!output.frontend) return
                     const addr = contractAddress.trim()
-                    const js = addr ? output.frontend.replace(/CONTRACT_ADDRESS/g, addr) : output.frontend
+                    const js = addr ? output.frontend.replace(/(['"])CONTRACT_ADDRESS\1/g, `$1${addr}$1`) : output.frontend
                     navigator.clipboard.writeText(js)
                   }}
                 >
@@ -645,7 +645,7 @@ ${js}
                 onClick={() => {
                   if (!output.frontend) return
                   const addr = contractAddress.trim()
-                  navigator.clipboard.writeText(addr ? output.frontend.replace(/CONTRACT_ADDRESS/g, addr) : output.frontend)
+                  navigator.clipboard.writeText(addr ? output.frontend.replace(/(['"])CONTRACT_ADDRESS\1/g, `$1${addr}$1`) : output.frontend)
                 }}
               >
                 COPY app.js
