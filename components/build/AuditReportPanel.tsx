@@ -28,7 +28,7 @@ export default function AuditReportPanel({ report }: { report: AuditChecklist })
           {verdict.label}
         </span>
         <span className="font-mono text-xs text-muted">
-          {applicable.length} of 25 risks apply to your build
+          {applicable.length} of 5 risks apply to your build
         </span>
       </div>
 
@@ -66,7 +66,7 @@ export default function AuditReportPanel({ report }: { report: AuditChecklist })
       {/* All findings — collapsible */}
       <details className="mt-4">
         <summary className="font-mono text-xs text-muted cursor-pointer hover:text-text">
-          View all 25 findings
+          View all findings
         </summary>
         <div className="mt-3 space-y-2">
           {report.findings.map(finding => (

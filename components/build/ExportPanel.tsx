@@ -243,7 +243,7 @@ ${js}
               Before you deploy
             </p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text)', lineHeight: 1.5, margin: 0 }}>
-              Run a 25-point security audit on your build.
+              Run a 5-point security audit on your build.
               Takes 15 seconds. Tells you exactly what to fix before you go live.
             </p>
           </div>
