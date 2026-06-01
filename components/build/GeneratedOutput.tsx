@@ -36,6 +36,8 @@ export default function GeneratedOutputView({ output, buildConfig, onOutputChang
   const [showPreview, setShowPreview] = useState(false)
   const [copied, setCopied] = useState(false)
   const [regenerating, setRegenerating] = useState<Tab | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [editContent, setEditContent] = useState('')
 
   const activeContent = tabs.find((t) => t.id === activeTab)?.content || ''
 
@@ -43,6 +45,16 @@ export default function GeneratedOutputView({ output, buildConfig, onOutputChang
     navigator.clipboard.writeText(activeContent)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  function handleEditSave() {
+    onOutputChange({ ...output, contract: editContent })
+    setEditing(false)
+  }
+
+  function handleEditCancel() {
+    setEditing(false)
+    setEditContent('')
   }
 
   async function handleRegenerate() {
@@ -71,7 +83,7 @@ export default function GeneratedOutputView({ output, buildConfig, onOutputChang
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => { setActiveTab(tab.id); setShowPreview(false) }}
+            onClick={() => { setActiveTab(tab.id); setShowPreview(false); setEditing(false); setEditContent('') }}
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '11px',
@@ -89,27 +101,74 @@ export default function GeneratedOutputView({ output, buildConfig, onOutputChang
           </button>
         ))}
         <div style={{ marginLeft: 'auto', padding: '6px 12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {activeTab === 'frontend' && output.frontend && (
+          {activeTab === 'frontend' && output.frontend && !editing && (
             <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)}>
               {showPreview ? 'CODE' : 'PREVIEW'}
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={copyContent}>
-            {copied ? 'COPIED!' : 'COPY'}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRegenerate}
-            disabled={regenerating !== null}
-          >
-            {regenerating === activeTab ? '...' : 'REGENERATE'}
-          </Button>
+          {!editing && (
+            <Button variant="ghost" size="sm" onClick={copyContent}>
+              {copied ? 'COPIED!' : 'COPY'}
+            </Button>
+          )}
+          {activeTab === 'contract' && !editing && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setEditContent(activeContent); setEditing(true) }}
+            >
+              EDIT
+            </Button>
+          )}
+          {editing && (
+            <>
+              <Button variant="ghost" size="sm" onClick={handleEditCancel}>
+                CANCEL
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleEditSave}>
+                SAVE
+              </Button>
+            </>
+          )}
+          {!editing && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRegenerate}
+              disabled={regenerating !== null}
+            >
+              {regenerating === activeTab ? '...' : 'REGENERATE'}
+            </Button>
+          )}
         </div>
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-        {activeTab === 'frontend' && showPreview && output.frontend ? (
+        {activeTab === 'contract' && editing ? (
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            spellCheck={false}
+            style={{
+              display: 'block',
+              width: '100%',
+              minHeight: '480px',
+              height: '100%',
+              margin: 0,
+              padding: '20px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '12px',
+              color: 'var(--text)',
+              lineHeight: 1.7,
+              background: 'rgba(0,229,160,0.02)',
+              border: 'none',
+              borderLeft: '2px solid rgba(0,229,160,0.3)',
+              outline: 'none',
+              resize: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+        ) : activeTab === 'frontend' && showPreview && output.frontend ? (
           <iframe
             srcDoc={output.frontend}
             style={{ width: '100%', height: '500px', border: 'none', background: '#fff' }}
