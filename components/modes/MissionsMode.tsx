@@ -1,10 +1,22 @@
 'use client'
 
-import { useState } from 'react'
-import type { MissionId } from '@/types'
+import { useState, useEffect } from 'react'
+import type { MissionId, SavedBuild } from '@/types'
 import { MISSIONS_DATA, OPEN_CONTRIBUTIONS } from '@/data/missions'
+import { getBuildHistory, deleteBuild, timeAgo } from '@/lib/storage'
 import ChatPanel from '@/components/chat/ChatPanel'
 import BuildWizard from '@/components/build/BuildWizard'
+
+const MISSION_LABELS: Record<string, string> = {
+  tutorial:      'FEATURED',
+  minigame:      'SPECIAL',
+  projects:      'PROJECTS',
+  research:      'RESEARCH',
+  tools:         'TOOLS',
+  community:     'COMMUNITY',
+  documentation: 'DOCS',
+  educational:   'EDUCATIONAL',
+}
 
 function handleTilt(e: React.MouseEvent<HTMLDivElement>) {
   const el = e.currentTarget
@@ -23,6 +35,12 @@ function handleTiltReset(e: React.MouseEvent<HTMLDivElement>) {
 export default function MissionsMode() {
   const [projectsSelected, setProjectsSelected] = useState(false)
   const [buildMissionId, setBuildMissionId] = useState<MissionId | null>(null)
+  const [restoredBuild, setRestoredBuild] = useState<SavedBuild | null>(null)
+  const [history, setHistory] = useState<SavedBuild[]>([])
+
+  useEffect(() => {
+    setHistory(getBuildHistory())
+  }, [])
 
   const projectsContrib = OPEN_CONTRIBUTIONS.find((c) => c.id === 'projects')!
 
@@ -32,7 +50,17 @@ export default function MissionsMode() {
   ]
 
   if (buildMissionId) {
-    return <BuildWizard missionId={buildMissionId} onClose={() => setBuildMissionId(null)} />
+    return (
+      <BuildWizard
+        missionId={buildMissionId}
+        restoredBuild={restoredBuild ?? undefined}
+        onClose={() => {
+          setBuildMissionId(null)
+          setRestoredBuild(null)
+          setHistory(getBuildHistory())
+        }}
+      />
+    )
   }
 
   return (
@@ -62,6 +90,119 @@ export default function MissionsMode() {
         <p style={{ fontFamily: 'var(--font-body)', color: 'var(--muted)', marginBottom: '32px', fontSize: '15px' }}>
           Live Builder Portal missions — select one to plan and build your submission.
         </p>
+
+        {/* Recent builds history */}
+        {history.length > 0 && (
+          <div style={{ marginBottom: '32px' }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.12em',
+                color: 'var(--muted)',
+                textTransform: 'uppercase',
+                marginBottom: '10px',
+              }}
+            >
+              Recent Builds
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {history.map((build) => (
+                <div
+                  key={build.id}
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '12px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '9px',
+                        letterSpacing: '0.08em',
+                        color: 'var(--accent)',
+                        border: '1px solid rgba(0,229,160,0.3)',
+                        borderRadius: '3px',
+                        padding: '1px 6px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {MISSION_LABELS[build.missionId] ?? build.missionId.toUpperCase()}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '13px',
+                        color: 'var(--text)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {build.label}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '10px',
+                        color: 'var(--muted)',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {timeAgo(build.savedAt)}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                    <button
+                      onClick={() => {
+                        setRestoredBuild(build)
+                        setBuildMissionId(build.missionId)
+                      }}
+                      style={{
+                        background: 'none',
+                        border: '1px solid rgba(0,229,160,0.3)',
+                        borderRadius: '4px',
+                        padding: '4px 10px',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '10px',
+                        color: 'var(--accent)',
+                        cursor: 'pointer',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      RESUME →
+                    </button>
+                    <button
+                      onClick={() => {
+                        deleteBuild(build.id)
+                        setHistory(getBuildHistory())
+                      }}
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border)',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px',
+                        color: 'var(--muted)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Projects & Milestones — always open, featured */}
         <div style={{ marginBottom: '40px' }}>

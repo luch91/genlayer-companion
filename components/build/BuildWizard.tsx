@@ -1,39 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import type { MissionId, BuildStep, IdeaItem, GeneratedOutput, BuildConfig } from '@/types'
+import { useState } from 'react'
+import type { MissionId, BuildStep, IdeaItem, GeneratedOutput, BuildConfig, SavedBuild } from '@/types'
 import { buildDeliverable } from '@/lib/claude'
+import { saveBuild, updateBuild } from '@/lib/storage'
 import IdeaGenerator from './IdeaGenerator'
 import QuestionForm from './QuestionForm'
 import GeneratedOutputView from './GeneratedOutput'
 import ExportPanel from './ExportPanel'
 import LoadingDots from '@/components/ui/LoadingDots'
 import Button from '@/components/ui/Button'
-
-const STORAGE_KEY = 'genlayer_last_build'
-const MAX_AGE_MS  = 7 * 24 * 60 * 60 * 1000
-
-interface SavedBuild {
-  output: GeneratedOutput
-  buildConfig: BuildConfig
-  savedAt: string
-}
-
-function timeAgo(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime()
-  const m  = Math.floor(ms / 60000)
-  const h  = Math.floor(ms / 3600000)
-  const d  = Math.floor(ms / 86400000)
-  if (m < 1)  return 'just now'
-  if (m < 60) return `${m}m ago`
-  if (h < 24) return `${h}h ago`
-  return `${d}d ago`
-}
-
-interface BuildWizardProps {
-  missionId: MissionId
-  onClose: () => void
-}
 
 const GENERATING_MESSAGES: Record<MissionId, string> = {
   minigame:       'Claude is building your contract, frontend, and content...',
@@ -54,43 +30,26 @@ const STEP_LABELS: Record<BuildStep, string> = {
   export: 'EXPORT',
 }
 
-export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
-  const [step, setStep] = useState<BuildStep>('ideas')
+interface BuildWizardProps {
+  missionId: MissionId
+  restoredBuild?: SavedBuild
+  onClose: () => void
+}
+
+export default function BuildWizard({ missionId, restoredBuild, onClose }: BuildWizardProps) {
+  const [step, setStep] = useState<BuildStep>(restoredBuild ? 'output' : 'ideas')
   const [entryMode, setEntryMode] = useState<'choose' | 'generate' | 'direct' | null>(null)
-  const [idea, setIdea] = useState<IdeaItem | null>(null)
+  const [idea, setIdea] = useState<IdeaItem | null>(restoredBuild?.buildConfig.idea ?? null)
   const [customIdeaText, setCustomIdeaText] = useState('')
-  const [output, setOutput] = useState<GeneratedOutput | null>(null)
-  const [buildConfig, setBuildConfig] = useState<BuildConfig | null>(null)
-  const [savedBuild, setSavedBuild]   = useState<SavedBuild | null>(null)
+  const [output, setOutput] = useState<GeneratedOutput | null>(restoredBuild?.output ?? null)
+  const [buildConfig, setBuildConfig] = useState<BuildConfig | null>(restoredBuild?.buildConfig ?? null)
+  const [buildId, setBuildId] = useState<string | null>(restoredBuild?.id ?? null)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (!raw) return
-      const parsed: SavedBuild = JSON.parse(raw)
-      if (Date.now() - new Date(parsed.savedAt).getTime() > MAX_AGE_MS) {
-        localStorage.removeItem(STORAGE_KEY)
-        return
-      }
-      setSavedBuild(parsed)
-    } catch {
-      localStorage.removeItem(STORAGE_KEY)
-    }
-  }, [])
-
-  function handleRestore() {
-    if (!savedBuild) return
-    setOutput(savedBuild.output)
-    setBuildConfig(savedBuild.buildConfig)
-    setIdea(savedBuild.buildConfig.idea)
-    setStep('output')
-  }
 
   function handleOutputChange(updated: GeneratedOutput) {
     setOutput(updated)
-    if (buildConfig) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ output: updated, buildConfig, savedAt: new Date().toISOString() }))
+    if (buildId) {
+      updateBuild(buildId, updated)
     }
   }
 
@@ -102,7 +61,8 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
       setBuildConfig(config)
       const result = await buildDeliverable(config)
       setOutput(result)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ output: result, buildConfig: config, savedAt: new Date().toISOString() }))
+      const id = saveBuild(config, result)
+      setBuildId(id)
       setStep('output')
     } catch {
       setError('Generation failed. Please try again.')
@@ -149,14 +109,7 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
             {steps.map((s, i) => (
-              <div
-                key={s}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
+              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
@@ -209,32 +162,6 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--muted)', marginBottom: '32px', fontSize: '15px' }}>
               Have an idea already, or need help finding one?
             </p>
-
-            {savedBuild && entryMode === null && (
-              <div style={{
-                background: 'var(--surface)',
-                border: '1px solid rgba(0,229,160,0.2)',
-                borderRadius: '8px',
-                padding: '16px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '16px',
-                marginBottom: '24px',
-              }}>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '0.1em', margin: '0 0 4px' }}>
-                    RESUME LAST BUILD — {timeAgo(savedBuild.savedAt)}
-                  </p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text)', margin: 0 }}>
-                    {savedBuild.buildConfig.idea?.title ?? savedBuild.buildConfig.missionId}
-                  </p>
-                </div>
-                <Button variant="secondary" onClick={handleRestore}>
-                  RESUME →
-                </Button>
-              </div>
-            )}
 
             {entryMode === null && (
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -352,11 +279,9 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
               justifyContent: 'center',
             }}
           >
-            {/* Background orbs */}
             <div style={{ position: 'absolute', top: '10%', left: '15%', width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,229,160,0.07) 0%, transparent 70%)', filter: 'blur(48px)', animation: 'gl-float 9s ease-in-out infinite', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: '50%', left: '65%', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'gl-float-alt 11s ease-in-out infinite', pointerEvents: 'none' }} />
 
-            {/* Expanding rings */}
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -375,7 +300,6 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
               />
             ))}
 
-            {/* Particles */}
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
@@ -395,7 +319,6 @@ export default function BuildWizard({ missionId, onClose }: BuildWizardProps) {
               />
             ))}
 
-            {/* Content */}
             <div
               style={{
                 position: 'relative',

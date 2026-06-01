@@ -131,6 +131,15 @@ export interface AuditChecklist {
   deploy_verdict: 'ready' | 'caution' | 'not ready'
 }
 
+export interface SavedBuild {
+  id: string
+  savedAt: string
+  missionId: MissionId
+  label: string
+  buildConfig: BuildConfig
+  output: GeneratedOutput
+}
+
 export interface AuditArtifactResult {
   passed: boolean
   issues: string[]
