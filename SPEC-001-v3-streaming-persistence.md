@@ -33,20 +33,6 @@ Stream each artifact as it completes rather than waiting for the full parallel s
 
 ---
 
-### 2. Cross-Session Persistence
-
-Persist build history across hard refreshes without introducing user accounts.
-
-**Option A — localStorage with manual export**  
-Keep localStorage as the store. Add "Export history" (downloads JSON) and "Import history" (restores from file). No backend. Builder manages their own state file.
-
-**Option B — Supabase anonymous sessions**  
-Use Supabase anonymous auth for a persistent session ID. Store build history in a Supabase table keyed to the anonymous ID. Survives hard refresh and browser restarts. No user account required.
-
-**Recommendation:** Option B. Solves the actual problem without requiring the builder to manage export files. The project already uses Supabase for the relay function on Shipyard — the infrastructure pattern is established.
-
----
-
 ## Out of Scope for v3
 
 - Multi-build comparison view
