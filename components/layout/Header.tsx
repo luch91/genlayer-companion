@@ -57,41 +57,18 @@ export default function Header({ mode, onHome }: HeaderProps) {
             gap: '8px',
           }}
         >
-          {/* Handshake icon */}
-          <svg
-            viewBox="0 0 32 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <img
+            src="/builder-companion-mark.svg"
+            alt=""
             style={{
-              width: '28px',
-              height: '28px',
-              color: hovered ? 'var(--accent)' : 'var(--muted)',
-              filter: hovered ? 'drop-shadow(0 0 5px rgba(0,229,160,0.8))' : 'none',
-              transition: 'color 0.2s ease, filter 0.2s ease',
+              width: '30px',
+              height: '30px',
+              opacity: hovered ? 1 : 0.9,
+              transition: 'opacity 0.2s ease',
               flexShrink: 0,
             }}
             aria-hidden="true"
-          >
-            {/* Left wrist + palm */}
-            <path d="M1 20 L8 20 L8 16"/>
-            {/* Left fingers */}
-            <line x1="8" y1="13" x2="16" y2="9"/>
-            <line x1="8" y1="16" x2="16" y2="13"/>
-            <line x1="8" y1="19" x2="15" y2="17"/>
-            {/* Left thumb */}
-            <line x1="8" y1="11" x2="14" y2="6"/>
-            {/* Right wrist + palm */}
-            <path d="M31 20 L24 20 L24 16"/>
-            {/* Right fingers (cross-interlocking with left) */}
-            <line x1="24" y1="13" x2="14" y2="9"/>
-            <line x1="24" y1="16" x2="14" y2="13"/>
-            <line x1="24" y1="19" x2="17" y2="17"/>
-            {/* Right thumb */}
-            <line x1="24" y1="11" x2="18" y2="6"/>
-          </svg>
+          />
           {/* Text */}
           <span
             style={{
