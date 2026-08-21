@@ -46,7 +46,7 @@ async function openrouterChat(
     headers: {
       'Authorization': `Bearer ${key}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://genlayer-builder-companion.vercel.app',
+      'HTTP-Referer': 'https://buildercompanion.vercel.app',
       'X-Title': 'GenLayer Builder Companion',
     },
     body: JSON.stringify({
@@ -78,11 +78,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
 
     if (body.type === 'chat') {
-      const { mode, messages, missionId } = body as { mode: Mode; messages: { role: 'user' | 'assistant'; content: string }[]; missionId?: string }
+      const { mode, messages, missionId, context } = body as { mode: Mode; messages: { role: 'user' | 'assistant'; content: string }[]; missionId?: string; context?: string }
       let systemPrompt = getMissionSystemPrompt(mode)
       if (missionId) {
         const missionContext = getMissionChatContext(missionId as Parameters<typeof getMissionChatContext>[0])
         systemPrompt += `\n\nACTIVE MISSION CONTEXT — the user has selected this specific contribution track. All advice must be focused on it:\n${missionContext}`
+      }
+      if (context) {
+        systemPrompt += `\n\nUSER PROFILE CONTEXT — use this to tailor the response. Do not ask the user to repeat it:\n${context}`
       }
 
       const message = await groqChat(systemPrompt, messages, 1024)
@@ -91,7 +94,7 @@ export async function POST(req: NextRequest) {
 
     if (body.type === 'ideas') {
       const { ideaConfig } = body as { ideaConfig: IdeaConfig }
-      const { missionId } = ideaConfig
+      const { missionId, profile } = ideaConfig
 
       const missionContext = getMissionIdeasContext(missionId)
 
@@ -99,8 +102,11 @@ export async function POST(req: NextRequest) {
 
 You generate ideas for GenLayer builders for a specific contribution track.
 
-CONTRIBUTION TRACK — THIS IS THE ONLY CONSTRAINT. Every idea MUST be a valid submission for this track and nothing else:
+CONTRIBUTION TRACK — THIS IS THE PRIMARY CONSTRAINT. Every idea MUST be a valid submission for this track:
 ${missionContext}
+
+BUILDER PROFILE — tailor scope, technical detail, and examples to this profile when supplied:
+${JSON.stringify(profile ?? {})}
 
 Return ONLY valid JSON — an array of exactly 5 idea objects with this structure:
 [
@@ -113,7 +119,8 @@ Return ONLY valid JSON — an array of exactly 5 idea objects with this structur
 ]
 No markdown fences. No preamble. Only the JSON array.`
 
-      const userPrompt = `Generate 5 ideas for the "${missionId}" contribution track. Every idea must be a valid, specific submission for that track — not a generic GenLayer project.`
+      const profileContext = profile ? ` Builder profile: ${JSON.stringify(profile)}.` : ''
+      const userPrompt = `Generate 5 ideas for the "${missionId}" contribution track. Every idea must be a valid, specific submission for that track — not a generic GenLayer project.${profileContext}`
 
       const raw = await groqChat(systemPrompt, [{ role: 'user', content: userPrompt }], 2048)
       const ideas = parseJSON(raw)

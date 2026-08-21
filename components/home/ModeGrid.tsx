@@ -14,7 +14,7 @@ const MODES: { id: Mode; title: string; subtitle: string; description: string; c
     subtitle: 'Find your idea',
     description: 'Get personalized Intelligent Contract ideas based on your background and interests.',
     color: 'var(--accent)',
-    rgb: '0,229,160',
+    rgb: '231,111,81',
     effect: 'A — SPOTLIGHT',
   },
   {
@@ -23,7 +23,7 @@ const MODES: { id: Mode; title: string; subtitle: string; description: string; c
     subtitle: 'Master the stack',
     description: 'AI-guided walkthroughs of GenLayer concepts with working code examples.',
     color: 'var(--accent)',
-    rgb: '0,229,160',
+    rgb: '231,111,81',
     effect: 'B — BORDER TRACE',
   },
   {
@@ -32,7 +32,7 @@ const MODES: { id: Mode; title: string; subtitle: string; description: string; c
     subtitle: 'Make your mark',
     description: 'Six contribution paths with actionable first steps — whatever your skills.',
     color: 'var(--orange)',
-    rgb: '255,107,53',
+    rgb: '158,212,226',
     effect: 'C — MAGNETIC PULL',
   },
   {
@@ -41,17 +41,17 @@ const MODES: { id: Mode; title: string; subtitle: string; description: string; c
     subtitle: 'Ship and earn',
     description: 'Live Builder Portal missions — from idea to deployed contract + frontend.',
     color: 'var(--orange)',
-    rgb: '255,107,53',
+    rgb: '158,212,226',
     effect: 'D — SCANLINE',
   },
 ]
 
 const ORBS = [
-  { top: '-8%',  left: '-6%',  w: 520, h: 520, color: 'rgba(0,229,160,0.18)',  dur: '9s',  anim: 'gl-float' },
-  { top: '8%',   left: '68%',  w: 420, h: 420, color: 'rgba(255,107,53,0.14)', dur: '12s', anim: 'gl-float-alt' },
-  { top: '58%',  left: '4%',   w: 340, h: 340, color: 'rgba(0,229,160,0.12)',  dur: '10s', anim: 'gl-float-alt' },
-  { top: '42%',  left: '62%',  w: 280, h: 280, color: 'rgba(255,107,53,0.10)', dur: '7s',  anim: 'gl-float' },
-  { top: '72%',  left: '38%',  w: 380, h: 380, color: 'rgba(0,229,160,0.10)',  dur: '14s', anim: 'gl-float-alt' },
+  { top: '-8%',  left: '-6%',  w: 520, h: 520, color: 'rgba(231,111,81,0.18)',  dur: '9s',  anim: 'gl-float' },
+  { top: '8%',   left: '68%',  w: 420, h: 420, color: 'rgba(158,212,226,0.14)', dur: '12s', anim: 'gl-float-alt' },
+  { top: '58%',  left: '4%',   w: 340, h: 340, color: 'rgba(231,111,81,0.12)',  dur: '10s', anim: 'gl-float-alt' },
+  { top: '42%',  left: '62%',  w: 280, h: 280, color: 'rgba(158,212,226,0.10)', dur: '7s',  anim: 'gl-float' },
+  { top: '72%',  left: '38%',  w: 380, h: 380, color: 'rgba(231,111,81,0.10)',  dur: '14s', anim: 'gl-float-alt' },
 ]
 
 const SHAPES = [
@@ -62,7 +62,7 @@ const SHAPES = [
   { top: '22%', left: '48%', size: 10, delay: '11s', dur: '30s' },
 ]
 
-const BASE_BG = 'rgba(9,19,28,0.55)'
+const BASE_BG = 'rgba(8,46,56,0.55)'
 
 export default function ModeGrid({ onSelect }: ModeGridProps) {
   const layer1Ref = useRef<HTMLDivElement>(null)
@@ -111,7 +111,7 @@ export default function ModeGrid({ onSelect }: ModeGridProps) {
     const rect = el.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    el.style.background = `radial-gradient(280px circle at ${x}px ${y}px, rgba(0,229,160,0.18) 0%, rgba(9,19,28,0.55) 65%)`
+    el.style.background = `radial-gradient(280px circle at ${x}px ${y}px, rgba(231,111,81,0.18) 0%, rgba(8,46,56,0.55) 65%)`
   }
   function handleSpotlightLeave(e: React.MouseEvent<HTMLButtonElement>) {
     const el = e.currentTarget
@@ -218,13 +218,13 @@ export default function ModeGrid({ onSelect }: ModeGridProps) {
       {/* Radial gradient backdrop */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 80% 60% at 12% 45%, rgba(0,229,160,0.06) 0%, transparent 65%), radial-gradient(ellipse 60% 50% at 88% 18%, rgba(255,107,53,0.05) 0%, transparent 65%)',
+        background: 'radial-gradient(ellipse 80% 60% at 12% 45%, rgba(231,111,81,0.06) 0%, transparent 65%), radial-gradient(ellipse 60% 50% at 88% 18%, rgba(158,212,226,0.05) 0%, transparent 65%)',
       }} />
 
       {/* Dot grid */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: 'radial-gradient(circle, rgba(0,229,160,0.35) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(231,111,81,0.35) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
         opacity: 0.5,
       }} />
@@ -265,7 +265,7 @@ export default function ModeGrid({ onSelect }: ModeGridProps) {
           <div key={i} style={{
             position: 'absolute', top: s.top, left: s.left,
             width: s.size, height: s.size,
-            border: '1px solid rgba(0,229,160,0.22)',
+            border: '1px solid rgba(231,111,81,0.22)',
             transform: 'rotate(45deg)',
             animation: `gl-rotate ${s.dur} linear infinite`,
             animationDelay: s.delay,
@@ -286,12 +286,12 @@ export default function ModeGrid({ onSelect }: ModeGridProps) {
             color: 'var(--text)',
             lineHeight: 0.95,
             margin: '0 0 22px',
-            textShadow: '0 0 80px rgba(0,229,160,0.1)',
+            textShadow: '0 0 80px rgba(231,111,81,0.1)',
           }}>
             BUILD ON{' '}
             <span style={{
               color: 'var(--accent)',
-              textShadow: '0 0 20px rgba(0,229,160,0.7), 0 0 60px rgba(0,229,160,0.4)',
+              textShadow: '0 0 20px rgba(231,111,81,0.7), 0 0 60px rgba(231,111,81,0.4)',
               animation: 'gl-pulse-glow 2.5s ease-in-out infinite',
             }}>
               GENLAYER

@@ -66,7 +66,7 @@ export default function QuestionForm({ missionId, onSubmit }: QuestionFormProps)
                   key={opt.value}
                   onClick={() => set(q.id, opt.value)}
                   style={{
-                    background: answers[q.id] === opt.value ? 'rgba(0,229,160,0.08)' : 'var(--surface)',
+                    background: answers[q.id] === opt.value ? 'rgba(231,111,81,0.08)' : 'var(--surface)',
                     border: `1px solid ${answers[q.id] === opt.value ? 'var(--accent)' : 'var(--border)'}`,
                     borderRadius: '6px',
                     padding: '10px 14px',

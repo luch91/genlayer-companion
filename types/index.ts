@@ -38,6 +38,13 @@ export interface IdeaItem {
 
 export interface IdeaConfig {
   missionId: MissionId
+  profile?: IdeateProfile
+}
+
+export interface IdeateProfile {
+  background?: string
+  interests?: string[]
+  timeCommitment?: string
 }
 
 export interface QuestionOption {
@@ -73,7 +80,7 @@ export interface Mission {
   description: string
   requirements: string[]
   chatSeed: string
-  status: 'open' | 'closed'
+  status: 'open' | 'upcoming' | 'closed'
   deadline: string | null
 }
 

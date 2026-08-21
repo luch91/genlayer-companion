@@ -73,25 +73,21 @@ Rules:
 
 The Equivalence Principle allows validators to agree that two results are "equivalent" even if not bit-for-bit identical — this is what makes non-deterministic AI outputs work on a blockchain.
 
-## genlayer-js Frontend Integration
+## Browser Frontend Integration
 
 \`\`\`javascript
-import { createClient, testnet } from 'genlayer-js'
-
-const client = createClient({ network: testnet })
-
 // Read state (no signature needed)
-const result = await client.readContract({
-  address: CONTRACT_ADDRESS,
-  functionName: 'get',
-  args: [],
+const result = await fetch(GENLAYER_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ method: 'eth_call', params: [request] }),
 })
 
 // Write (triggers consensus)
-const txHash = await client.writeContract({
-  address: CONTRACT_ADDRESS,
-  functionName: 'update',
-  args: ['new value'],
+const transaction = await fetch(GENLAYER_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ method: 'eth_sendTransaction', params: [request] }),
 })
 \`\`\`
 
@@ -107,12 +103,15 @@ Always mention **both** platforms together whenever contracts are involved:
 
 In every tutorial, README, educational lesson, project guide, or chat response: the workflow is always **Studio to test → Shipyard to deploy**. Never mention one without the other. This applies to all generated content: walkthroughs, step-by-step guides, code comments, and conversational advice.
 
-## Active Missions (Builder Portal)
-1. **From Zero to GenLayer** — Educational tutorial: Optimistic Democracy + Equivalence Principle + Studio + Python contract + genlayer-js frontend. Multi-part format.
+## Mission Reference (Builder Portal)
+Mission availability changes. Always direct users to the Builder Portal for the current open missions.
+1. **From Zero to GenLayer** — Educational tutorial: Optimistic Democracy + Equivalence Principle + Studio + Python contract + browser frontend. Multi-part format.
 2. **Mini-Games for Community** — Intelligent Contract at core, Optimistic Democracy integral, multiplayer (2+ players), 5–15 min sessions, weekly replayable, XP leaderboard.
 
-## Open Contribution Tracks
+## Contribution Paths
 Projects & Milestones | Research & Analysis | Tools & Infrastructure | Community & Growth | Documentation | Educational Content
+
+Availability changes over time. Treat the Builder Portal as the source of truth for which paths are currently open for direct submission.
 
 ## Mental Model Shifts
 - Contracts are NOT deterministic — they use AI, so validators run them independently and check equivalence

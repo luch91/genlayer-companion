@@ -8,13 +8,12 @@ An AI-powered community tool for the GenLayer ecosystem. It guides builders from
 
 ## What it does
 
-The Builder Companion walks a user through five steps:
+The Builder Companion uses four visible build stages, with an automated generation phase between customization and review:
 
-1. **Find an idea** — describe your own or let AI generate five tailored suggestions
+1. **Find an idea** — describe your own or let AI generate five mission-specific suggestions
 2. **Customize** — answer mission-specific questions that shape the output
-3. **Generate** — AI builds all artifacts in parallel (contract, frontend, test file, README, content)
-4. **Review** — inspect the full generated output before moving forward
-5. **Export** — run a 5-point security audit, preview in-browser, download as ZIP, deploy
+3. **Review** — inspect the full generated output after AI creates all six artifacts in parallel
+4. **Export** — run a 5-point security audit, preview in-browser, download as ZIP, deploy
 
 ---
 
@@ -92,7 +91,7 @@ app/
 
 components/
   build/
-    BuildWizard.tsx          Five-step wizard (ideas → questions → generating → output → export)
+    BuildWizard.tsx          Four-stage wizard with generation phase (ideas → questions → output → export)
     IdeaGenerator.tsx        AI idea generation UI
     QuestionForm.tsx         Mission-specific customization questions
     GeneratedOutput.tsx      Output viewer (contract, frontend, markdown, readme, test tabs) with per-artifact REGENERATE and inline contract EDIT
@@ -106,14 +105,14 @@ components/
   ui/Button.tsx Chip.tsx LoadingDots.tsx
 
 data/
-  missions.ts                Mission definitions and open contribution tracks
+  missions.ts                Mission definitions and contribution paths
   build-questions.ts         Per-mission customization questions
   contribute.ts              Contribution path data
   learn.ts                   Learning topics
   backgrounds.ts             User background options
 
 lib/
-  claude.ts                  Client-side fetch helpers (chatWithClaude, generateIdeas, buildDeliverable, runAudit, regenerateArtifact)
+  ai.ts                      Client-side AI request helpers
   storage.ts                 Build history storage (getBuildHistory, saveBuild, updateBuild, deleteBuild, timeAgo)
   prompts/
     base.ts                  GENLAYER_BASE_PROMPT — GenLayer API rules injected into every build
@@ -121,7 +120,6 @@ lib/
     missions/                Per-mission system prompts (one file per track)
   export/
     netlify.ts               HTML download helper
-    vercel.ts                Vercel export helper
 
 types/index.ts               All shared TypeScript interfaces
 ```
@@ -182,10 +180,12 @@ The Export panel produces:
 | File | Contents |
 |---|---|
 | `contract.py` | The Python Intelligent Contract |
-| `app.js` | The JavaScript frontend |
+| `app.js` | The self-contained JavaScript frontend using GenLayer JSON-RPC |
 | `index.html` | Minimal HTML shell |
 | `preview.html` | Self-contained local preview (JS inlined) |
-| `package.json` | Project metadata with `genlayer-js` dependency |
+| `package.json` | Project metadata for local static serving |
+| `test_contract.py` | Generated GenLayer Studio test file |
+| `CONTENT.md` | Generated project content or documentation |
 | `README.md` | Generated deployment guide |
 
 Downloaded as `genlayer-project.zip`. The frontend preview runs in-browser via a blob URL iframe — always in demo mode regardless of whether a contract address has been entered (demo mode is intentional; real contract interaction requires a live deployment).

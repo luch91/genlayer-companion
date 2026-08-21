@@ -15,11 +15,11 @@ export const CONTRIBS: ContribPath[] = [
   {
     id: 'create-frontend',
     title: 'Create a Frontend DApp',
-    description: 'Build a single-file HTML frontend that connects to a deployed Intelligent Contract using genlayer-js.',
+    description: 'Build a single-file HTML frontend that connects to a deployed Intelligent Contract using GenLayer JSON-RPC.',
     steps: [
       'Choose or deploy a contract on Shipyard',
       'Build a self-contained HTML page (CSS + JS inline)',
-      'Integrate genlayer-js readContract / writeContract',
+      'Integrate GenLayer JSON-RPC reads and writes',
       'Deploy on Netlify Drop or Vercel',
     ],
   },

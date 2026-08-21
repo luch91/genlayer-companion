@@ -39,7 +39,8 @@ export default function MissionsMode() {
   const [history, setHistory] = useState<SavedBuild[]>([])
 
   useEffect(() => {
-    setHistory(getBuildHistory())
+    const timer = window.setTimeout(() => setHistory(getBuildHistory()), 0)
+    return () => window.clearTimeout(timer)
   }, [])
 
   const projectsContrib = OPEN_CONTRIBUTIONS.find((c) => c.id === 'projects')!
@@ -128,7 +129,7 @@ export default function MissionsMode() {
                         fontSize: '9px',
                         letterSpacing: '0.08em',
                         color: 'var(--accent)',
-                        border: '1px solid rgba(0,229,160,0.3)',
+                        border: '1px solid rgba(231,111,81,0.3)',
                         borderRadius: '3px',
                         padding: '1px 6px',
                         flexShrink: 0,
@@ -167,7 +168,7 @@ export default function MissionsMode() {
                       }}
                       style={{
                         background: 'none',
-                        border: '1px solid rgba(0,229,160,0.3)',
+                        border: '1px solid rgba(231,111,81,0.3)',
                         borderRadius: '4px',
                         padding: '4px 10px',
                         fontFamily: 'var(--font-mono)',
@@ -224,18 +225,18 @@ export default function MissionsMode() {
             onMouseLeave={handleTiltReset}
             onClick={() => setProjectsSelected((v) => !v)}
             style={{
-              background: projectsSelected ? 'rgba(14,29,42,0.9)' : 'rgba(9,19,28,0.72)',
+              background: projectsSelected ? 'rgba(14,29,42,0.9)' : 'rgba(8,46,56,0.72)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
-              border: `1px solid ${projectsSelected ? 'var(--accent)' : 'rgba(0,229,160,0.3)'}`,
+              border: `1px solid ${projectsSelected ? 'var(--accent)' : 'rgba(231,111,81,0.3)'}`,
               borderRadius: '12px',
               padding: '28px 32px',
               cursor: 'pointer',
               transition: 'border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
               willChange: 'transform',
               boxShadow: projectsSelected
-                ? '0 4px 32px rgba(0,229,160,0.12)'
-                : '0 2px 24px rgba(0,229,160,0.04)',
+                ? '0 4px 32px rgba(231,111,81,0.12)'
+                : '0 2px 24px rgba(231,111,81,0.04)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
@@ -354,7 +355,7 @@ export default function MissionsMode() {
               <div
                 key={track.id}
                 style={{
-                  background: 'rgba(9,19,28,0.72)',
+                  background: 'rgba(8,46,56,0.72)',
                   backdropFilter: 'blur(12px)',
                   WebkitBackdropFilter: 'blur(12px)',
                   border: '1px solid var(--border)',

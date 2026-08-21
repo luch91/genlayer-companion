@@ -25,6 +25,12 @@ export default function IdeateMode() {
     setInterests((prev) => (prev.includes(val) ? prev.filter((i) => i !== val) : [...prev, val]))
   }
 
+  const profileContext = [
+    background && `Background: ${BACKGROUNDS.find((item) => item.value === background)?.label ?? background}`,
+    interests.length > 0 && `Interests: ${interests.map((value) => INTERESTS.find((item) => item.value === value)?.label ?? value).join(', ')}`,
+    time && `Time available: ${TIME_COMMITMENTS.find((item) => item.value === time)?.label ?? time}`,
+  ].filter(Boolean).join('\n')
+
   return (
     <div
       style={{
@@ -144,14 +150,13 @@ export default function IdeateMode() {
                 color: 'var(--muted)',
               }}
             >
-              <span style={{ color: 'var(--accent)' }}>TIP —</span> Share your selections with the AI assistant →
-              and ask it to generate ideas for you.
+              <span style={{ color: 'var(--accent)' }}>PROFILE ACTIVE —</span> Your selections are now applied to every AI suggestion in this session.
             </div>
           )}
         </div>
       </div>
 
-      <ChatPanel mode="ideate" seedMessage={SEED} suggestions={SUGGESTIONS} />
+      <ChatPanel mode="ideate" seedMessage={SEED} suggestions={SUGGESTIONS} context={profileContext || undefined} />
     </div>
   )
 }

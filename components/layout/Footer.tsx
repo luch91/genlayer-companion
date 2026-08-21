@@ -9,7 +9,7 @@ export default function Footer() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(9,19,28,0.82)',
+        background: 'rgba(8,46,56,0.82)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
       }}

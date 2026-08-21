@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { BuildConfig, GeneratedOutput } from '@/types'
-import { regenerateArtifact } from '@/lib/claude'
+import { regenerateArtifact } from '@/lib/ai'
 import Button from '@/components/ui/Button'
 
 interface GeneratedOutputProps {
@@ -160,9 +160,9 @@ export default function GeneratedOutputView({ output, buildConfig, onOutputChang
               fontSize: '12px',
               color: 'var(--text)',
               lineHeight: 1.7,
-              background: 'rgba(0,229,160,0.02)',
+              background: 'rgba(231,111,81,0.02)',
               border: 'none',
-              borderLeft: '2px solid rgba(0,229,160,0.3)',
+              borderLeft: '2px solid rgba(231,111,81,0.3)',
               outline: 'none',
               resize: 'none',
               boxSizing: 'border-box',

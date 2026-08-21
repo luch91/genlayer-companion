@@ -25,7 +25,7 @@ export const BUILD_QUESTIONS: Record<MissionId, Question[]> = {
         { value: 'gl.exec_prompt — adding AI reasoning directly inside a contract', label: 'AI reasoning with gl.exec_prompt' },
         { value: 'gl.get_webpage — reading live web data inside a contract', label: 'Live web data with gl.get_webpage' },
         { value: 'the Equivalence Principle — how validators reach agreement on AI outputs', label: 'The Equivalence Principle' },
-        { value: 'building a full dApp — contract on Shipyard and frontend with genlayer-js', label: 'Full dApp from contract to frontend' },
+        { value: 'building a full dApp — contract on Shipyard and browser frontend using GenLayer JSON-RPC', label: 'Full dApp from contract to frontend' },
       ],
     },
     {
@@ -316,7 +316,7 @@ export const BUILD_QUESTIONS: Record<MissionId, Question[]> = {
         { value: 'Complete API reference for gl.exec_prompt, gl.get_webpage, and gl.eq_principle_prompt_comparative', label: 'API reference for GenLayer primitives' },
         { value: 'How Optimistic Democracy and validator consensus works under the hood', label: 'How Optimistic Democracy works' },
         { value: 'Deploying contracts on Shipyard — step-by-step with examples', label: 'Deploying contracts on Shipyard' },
-        { value: 'Connecting a frontend to GenLayer using genlayer-js', label: 'Building a frontend with genlayer-js' },
+        { value: 'Connecting a frontend to GenLayer using JSON-RPC', label: 'Building a frontend with GenLayer JSON-RPC' },
         { value: 'Testing and debugging Intelligent Contracts in GenLayer Studio', label: 'Testing and debugging in GenLayer Studio' },
         { value: 'Common errors and troubleshooting guide for GenLayer developers', label: 'Errors and troubleshooting guide' },
       ],
@@ -356,7 +356,7 @@ export const BUILD_QUESTIONS: Record<MissionId, Question[]> = {
         { value: 'building your first Intelligent Contract step by step in Python', label: 'Building your first contract' },
         { value: 'using gl.exec_prompt to add AI reasoning and decision making to contracts', label: 'AI reasoning with gl.exec_prompt' },
         { value: 'fetching and verifying real-world data with gl.get_webpage inside a contract', label: 'Real-world data with gl.get_webpage' },
-        { value: 'building a complete dApp from contract deployment on Shipyard to a genlayer-js frontend', label: 'Full dApp from contract to frontend' },
+        { value: 'building a complete dApp from contract deployment on Shipyard to a browser frontend using GenLayer JSON-RPC', label: 'Full dApp from contract to frontend' },
       ],
     },
     {

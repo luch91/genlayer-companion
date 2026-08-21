@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { Mode } from '@/types'
 
 interface HeaderProps {
@@ -23,7 +24,7 @@ export default function Header({ mode, onHome }: HeaderProps) {
     <header
       style={{
         borderBottom: '1px solid rgba(22,36,53,0.8)',
-        background: 'rgba(9,19,28,0.82)',
+        background: 'rgba(8,46,56,0.82)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         padding: '0 24px',
@@ -57,9 +58,12 @@ export default function Header({ mode, onHome }: HeaderProps) {
             gap: '8px',
           }}
         >
-          <img
+          <Image
             src="/builder-companion-mark.svg"
             alt=""
+            width={30}
+            height={30}
+            unoptimized
             style={{
               width: '30px',
               height: '30px',
@@ -110,8 +114,8 @@ export default function Header({ mode, onHome }: HeaderProps) {
                 fontSize: '11px',
                 letterSpacing: '0.1em',
                 color: 'var(--accent)',
-                background: 'rgba(0,229,160,0.1)',
-                border: '1px solid rgba(0,229,160,0.3)',
+                background: 'rgba(231,111,81,0.1)',
+                border: '1px solid rgba(231,111,81,0.3)',
                 padding: '3px 10px',
                 borderRadius: '4px',
               }}

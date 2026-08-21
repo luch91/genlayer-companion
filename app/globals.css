@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg: #04080d;
-  --color-surface: #09131c;
-  --color-surface2: #0e1d2a;
-  --color-border: #162435;
-  --color-accent: #00e5a0;
-  --color-orange: #ff6b35;
-  --color-text: #cce8e0;
-  --color-muted: #3d6b5c;
+  --color-bg: #082e38;
+  --color-surface: #103b45;
+  --color-surface2: #174b56;
+  --color-border: #2f5e66;
+  --color-accent: #e76f51;
+  --color-orange: #9ed4e2;
+  --color-text: #f3e9d2;
+  --color-muted: #9bbcc0;
 
   --font-display: var(--font-bebas);
   --font-mono: var(--font-space-mono);
@@ -16,14 +16,14 @@
 }
 
 :root {
-  --bg: #04080d;
-  --surface: #09131c;
-  --surface2: #0e1d2a;
-  --border: #162435;
-  --accent: #00e5a0;
-  --orange: #ff6b35;
-  --text: #cce8e0;
-  --muted: #3d6b5c;
+  --bg: #082e38;
+  --surface: #103b45;
+  --surface2: #174b56;
+  --border: #2f5e66;
+  --accent: #e76f51;
+  --orange: #9ed4e2;
+  --text: #f3e9d2;
+  --muted: #9bbcc0;
 }
 
 * {
@@ -75,8 +75,8 @@ body {
 }
 
 @keyframes gl-pulse-glow {
-  0%, 100% { text-shadow: 0 0 20px rgba(0,229,160,0.7), 0 0 60px rgba(0,229,160,0.4), 0 0 100px rgba(0,229,160,0.15); }
-  50% { text-shadow: 0 0 40px rgba(0,229,160,1), 0 0 100px rgba(0,229,160,0.6), 0 0 160px rgba(0,229,160,0.25); }
+  0%, 100% { text-shadow: 0 0 20px rgba(231,111,81,0.7), 0 0 60px rgba(231,111,81,0.4), 0 0 100px rgba(231,111,81,0.15); }
+  50% { text-shadow: 0 0 40px rgba(231,111,81,1), 0 0 100px rgba(231,111,81,0.6), 0 0 160px rgba(231,111,81,0.25); }
 }
 
 @keyframes gl-rotate {

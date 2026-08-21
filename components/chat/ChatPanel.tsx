@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import type { Mode, Message, MissionId } from '@/types'
-import { chatWithClaude } from '@/lib/claude'
+import { chatWithAI } from '@/lib/ai'
 import LoadingDots from '@/components/ui/LoadingDots'
 
 interface ChatPanelProps {
@@ -10,9 +10,10 @@ interface ChatPanelProps {
   missionId?: MissionId
   seedMessage?: string
   suggestions?: string[]
+  context?: string
 }
 
-export default function ChatPanel({ mode, missionId, seedMessage, suggestions = [] }: ChatPanelProps) {
+export default function ChatPanel({ mode, missionId, seedMessage, suggestions = [], context }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>(
     seedMessage ? [{ role: 'assistant', content: seedMessage }] : []
   )
@@ -31,7 +32,7 @@ export default function ChatPanel({ mode, missionId, seedMessage, suggestions = 
     setInput('')
     setLoading(true)
     try {
-      const reply = await chatWithClaude(mode, [...messages, userMsg], missionId)
+      const reply = await chatWithAI(mode, [...messages, userMsg], missionId, context)
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
     } catch {
       setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }])
@@ -102,8 +103,8 @@ export default function ChatPanel({ mode, missionId, seedMessage, suggestions = 
                 maxWidth: '85%',
                 padding: '10px 14px',
                 borderRadius: msg.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                background: msg.role === 'user' ? 'rgba(0,229,160,0.12)' : 'var(--surface2)',
-                border: `1px solid ${msg.role === 'user' ? 'rgba(0,229,160,0.3)' : 'var(--border)'}`,
+                background: msg.role === 'user' ? 'rgba(231,111,81,0.12)' : 'var(--surface2)',
+                border: `1px solid ${msg.role === 'user' ? 'rgba(231,111,81,0.3)' : 'var(--border)'}`,
                 fontFamily: 'var(--font-body)',
                 fontSize: '13px',
                 color: 'var(--text)',

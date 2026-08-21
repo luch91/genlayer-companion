@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { GeneratedOutput, BuildConfig, AuditChecklist } from '@/types'
 import { downloadHTML } from '@/lib/export/netlify'
-import { runAudit } from '@/lib/claude'
+import { runAudit } from '@/lib/ai'
 import Button from '@/components/ui/Button'
 import LoadingDots from '@/components/ui/LoadingDots'
 import AuditReportPanel from './AuditReportPanel'
@@ -32,7 +32,7 @@ const PACKAGE_JSON = JSON.stringify({
   version: '1.0.0',
   description: 'An Intelligent Contract project built with GenLayer',
   scripts: { dev: 'npx serve .' },
-  dependencies: { 'genlayer-js': 'latest' },
+  dependencies: {},
 }, null, 2)
 
 const NETLIFY_STEPS = [
@@ -169,6 +169,8 @@ ${js}
     zip.file('index.html', HTML_SHELL)
     zip.file('preview.html', previewHtml)
     zip.file('package.json', PACKAGE_JSON)
+    if (output.test) zip.file('test_contract.py', output.test)
+    if (output.markdown) zip.file('CONTENT.md', output.markdown)
     if (output.readme) zip.file('README.md', output.readme)
     const blob = await zip.generateAsync({ type: 'blob' })
     const url = URL.createObjectURL(blob)
@@ -227,7 +229,7 @@ ${js}
       {auditState === 'idle' && (
         <div style={{
           background: 'var(--surface)',
-          border: '1px solid rgba(255,107,53,0.3)',
+          border: '1px solid rgba(158,212,226,0.3)',
           borderRadius: '10px',
           padding: '20px',
           display: 'flex',
@@ -301,7 +303,7 @@ ${js}
               <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-                  background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                  background: 'rgba(231,111,81,0.1)', border: '1px solid rgba(231,111,81,0.25)',
                   borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
                   textAlign: 'center', flexShrink: 0,
                 }}>
@@ -360,8 +362,8 @@ ${js}
                   key={view}
                   onClick={() => setFrontendView(view)}
                   style={{
-                    background: frontendView === view ? 'rgba(0,229,160,0.08)' : 'none',
-                    border: `1px solid ${frontendView === view ? 'rgba(0,229,160,0.4)' : 'var(--border)'}`,
+                    background: frontendView === view ? 'rgba(231,111,81,0.08)' : 'none',
+                    border: `1px solid ${frontendView === view ? 'rgba(231,111,81,0.4)' : 'var(--border)'}`,
                     borderRadius: '4px',
                     padding: '6px 14px',
                     fontFamily: 'var(--font-mono)',
@@ -389,7 +391,7 @@ ${js}
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px',
                   fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-                  background: 'rgba(0,229,160,0.08)', border: '1px solid rgba(0,229,160,0.2)',
+                  background: 'rgba(231,111,81,0.08)', border: '1px solid rgba(231,111,81,0.2)',
                   borderRadius: '6px', padding: '8px 12px',
                 }}>
                   <span>✓</span>
@@ -436,7 +438,7 @@ ${js}
                     <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                       <span style={{
                         fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-                        background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                        background: 'rgba(231,111,81,0.1)', border: '1px solid rgba(231,111,81,0.25)',
                         borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
                         textAlign: 'center', flexShrink: 0,
                       }}>
@@ -530,7 +532,7 @@ ${js}
                     <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                       <span style={{
                         fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-                        background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                        background: 'rgba(231,111,81,0.1)', border: '1px solid rgba(231,111,81,0.25)',
                         borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
                         textAlign: 'center', flexShrink: 0,
                       }}>
@@ -584,7 +586,7 @@ ${js}
                 <div key={step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                   <span style={{
                     fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)',
-                    background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+                    background: 'rgba(231,111,81,0.1)', border: '1px solid rgba(231,111,81,0.25)',
                     borderRadius: '4px', padding: '2px 8px', minWidth: '28px',
                     textAlign: 'center', flexShrink: 0,
                   }}>
@@ -623,7 +625,7 @@ ${js}
         <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
           <div style={{
             height: '52px', borderBottom: '1px solid var(--border)',
-            background: 'rgba(9,19,28,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            background: 'rgba(8,46,56,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0 20px', flexShrink: 0,
           }}>
@@ -671,7 +673,7 @@ ${js}
         <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
           <div style={{
             height: '52px', borderBottom: '1px solid var(--border)',
-            background: 'rgba(9,19,28,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            background: 'rgba(8,46,56,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0 20px', flexShrink: 0,
           }}>
@@ -718,7 +720,7 @@ function ExportCard({ title, badge, children }: { title: string; badge: string; 
         </span>
         <span style={{
           fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)',
-          background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)',
+          background: 'rgba(231,111,81,0.1)', border: '1px solid rgba(231,111,81,0.25)',
           padding: '2px 8px', borderRadius: '3px', letterSpacing: '0.08em',
         }}>
           {badge}

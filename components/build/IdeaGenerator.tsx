@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { MissionId, IdeaItem } from '@/types'
 import { MISSIONS_DATA, OPEN_CONTRIBUTIONS } from '@/data/missions'
-import { generateIdeas } from '@/lib/claude'
+import { generateIdeas } from '@/lib/ai'
 import Chip from '@/components/ui/Chip'
 import Button from '@/components/ui/Button'
 import LoadingDots from '@/components/ui/LoadingDots'
@@ -78,8 +78,8 @@ export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProp
 
       {info && (
         <div style={{
-          background: 'rgba(0,229,160,0.05)',
-          border: '1px solid rgba(0,229,160,0.2)',
+          background: 'rgba(231,111,81,0.05)',
+          border: '1px solid rgba(231,111,81,0.2)',
           borderRadius: '8px',
           padding: '16px 20px',
           display: 'flex',
@@ -92,8 +92,8 @@ export default function IdeaGenerator({ missionId, onSelect }: IdeaGeneratorProp
                 fontFamily: 'var(--font-mono)',
                 fontSize: '9px',
                 color: 'var(--accent)',
-                background: 'rgba(0,229,160,0.1)',
-                border: '1px solid rgba(0,229,160,0.25)',
+                background: 'rgba(231,111,81,0.1)',
+                border: '1px solid rgba(231,111,81,0.25)',
                 padding: '2px 6px',
                 borderRadius: '3px',
                 letterSpacing: '0.08em',

@@ -13,13 +13,13 @@ export const MISSIONS_DATA: Mission[] = [
     requirements: [
       'Explain Optimistic Democracy and the Equivalence Principle clearly',
       'Include a working Python Intelligent Contract in GenLayer Studio',
-      'Build a genlayer-js frontend that connects to the contract',
+      'Build a browser frontend that connects to the contract',
       'Multi-part format: written guide, video, or both',
       'Verified with GenLayer Studio and Shipyard',
     ],
     chatSeed:
       "I'm here to help you win the From Zero to GenLayer mission. Tell me your background and I'll help you design a tutorial that stands out.",
-    status: 'open',
+    status: 'upcoming',
     deadline: null,
   },
   {
@@ -40,7 +40,7 @@ export const MISSIONS_DATA: Mission[] = [
     ],
     chatSeed:
       "Let's build your GenLayer mini-game! What kind of game are you thinking? I'll help you design the contract architecture and frontend.",
-    status: 'open',
+    status: 'upcoming',
     deadline: null,
   },
 ]

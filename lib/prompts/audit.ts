@@ -7,7 +7,7 @@ export function getAuditPrompt(
 
   const systemPrompt = `
 You are a senior GenLayer deployment auditor with deep knowledge of Intelligent Contracts,
-Optimistic Democracy consensus, the genlayer-js SDK, and production web application architecture.
+Optimistic Democracy consensus, browser-based GenLayer JSON-RPC integration, and production web application architecture.
 
 A developer just used the GenLayer Builder Companion to generate a project.
 You have been given their generated contract, frontend, and build configuration.

@@ -1,10 +1,10 @@
 import type { BuildConfig, IdeaConfig, IdeaItem, GeneratedOutput, Message, Mode, MissionId, AuditChecklist } from '@/types'
 
-export async function chatWithClaude(mode: Mode, messages: Message[], missionId?: MissionId): Promise<string> {
+export async function chatWithAI(mode: Mode, messages: Message[], missionId?: MissionId, context?: string): Promise<string> {
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'chat', mode, messages, missionId }),
+    body: JSON.stringify({ type: 'chat', mode, messages, missionId, context }),
   })
   if (!res.ok) throw new Error('Chat request failed')
   const data = await res.json()

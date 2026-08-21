@@ -23,21 +23,21 @@ export function getMissionSystemPrompt(mode: Mode): string {
 
 export function getMissionChatContext(missionId: MissionId): string {
   const contexts: Record<MissionId, string> = {
-    tutorial: `The user is working on the "From Zero to GenLayer" featured mission. This is an educational content contribution: they must create a multi-part walkthrough taking a complete beginner from zero to a deployed Intelligent Contract. Requirements: explain Optimistic Democracy and the Equivalence Principle, include a working Python Intelligent Contract, build a genlayer-js frontend, and verify in GenLayer Studio and Shipyard. Help them design a tutorial that stands out and qualifies for official docs inclusion.`,
+    tutorial: `The user is working on the "From Zero to GenLayer" featured mission. This is an educational content contribution: they must create a multi-part walkthrough taking a complete beginner from zero to a deployed Intelligent Contract. Requirements: explain Optimistic Democracy and the Equivalence Principle, include a working Python Intelligent Contract, build a browser frontend, and verify in GenLayer Studio and Shipyard. Help them design a tutorial that stands out and qualifies for official docs inclusion.`,
 
     minigame: `The user is working on the "Mini-Games for Community" special mission. They must build a multiplayer on-chain mini-game where an Intelligent Contract is the core game engine — handling all state, turns, and outcomes via Optimistic Democracy. Requirements: 2+ players, 5–15 minute sessions, replayable weekly, XP leaderboard on-chain. Help them design the game concept, contract architecture, and frontend.`,
 
     projects: `The user is working on the "Projects & Milestones" open contribution track — GenLayer's ecosystem grant programme. Builders showcase projects from MVP to growth milestones, earning rewards incrementally as they build. Significant achievements get amplification across GenLayer's channels. Help the user: identify a real problem worth solving, design an Intelligent Contract using gl primitives, scope a strong MVP they can ship quickly, and think through a milestone roadmap for what comes after launch.`,
 
-    research: `The user is working on the "Research & Analysis" open contribution track. They need to publish original research on GenLayer — consensus analysis, AI alignment, use case exploration, or comparative studies — as a paper, blog post, or technical thread. Help them frame a specific research question, outline methodology, and structure their findings.`,
+    research: `The user is exploring the "Research & Analysis" contribution path. They can publish original research on GenLayer — consensus analysis, AI alignment, use case exploration, or comparative studies — as a paper, blog post, or technical thread. Help them frame a specific research question, outline methodology, and structure their findings.`,
 
-    tools: `The user is working on the "Tools & Infrastructure" open contribution track. They need to build developer tooling — CLIs, libraries, npm packages, templates, or testing frameworks — that reduces friction for GenLayer developers. Help them identify a specific pain point, design the tool interface, and plan documentation and examples.`,
+    tools: `The user is exploring the "Tools & Infrastructure" contribution path. They can build developer tooling — CLIs, libraries, npm packages, templates, or testing frameworks — that reduces friction for GenLayer developers. Help them identify a specific pain point, design the tool interface, and plan documentation and examples.`,
 
-    community: `The user is working on the "Community & Growth" open contribution track. They need to expand the GenLayer ecosystem through content, events, onboarding, or ambassador activities. Help them identify their strengths, choose a concrete deliverable (video series, meetup, translation project, etc.), and plan how to maximise reach and impact.`,
+    community: `The user is exploring the "Community & Growth" contribution path. They can expand the GenLayer ecosystem through content, events, onboarding, or ambassador activities. Help them identify their strengths, choose a concrete deliverable (video series, meetup, translation project, etc.), and plan how to maximise reach and impact.`,
 
-    documentation: `The user is working on the "Documentation" open contribution track. They need to improve or expand GenLayer's official documentation — new guides, API references, concept explainers, or translations — submitted via the GenLayer GitHub repository. Help them identify documentation gaps and write clear, accurate technical content.`,
+    documentation: `The user is exploring the "Documentation" contribution path. They can improve or expand GenLayer's official documentation — new guides, API references, concept explainers, or translations — submitted via the GenLayer GitHub repository. Help them identify documentation gaps and write clear, accurate technical content.`,
 
-    educational: `The user is working on the "Educational Content" open contribution track. They need to create standalone educational resources — video courses, workshops, explainer series, or interactive lessons — that teach GenLayer concepts. Help them choose a concept to teach, design the learning path, and build content with working examples.`,
+    educational: `The user is exploring the "Educational Content" contribution path. They can create standalone educational resources — video courses, workshops, explainer series, or interactive lessons — that teach GenLayer concepts. Help them choose a concept to teach, design the learning path, and build content with working examples.`,
   }
 
   return contexts[missionId]
@@ -48,7 +48,7 @@ export function getMissionIdeasContext(missionId: MissionId): string {
     tutorial: `This is for the "From Zero to GenLayer" featured mission — an educational content contribution.
 Ideas MUST be tutorial concepts: multi-part walkthroughs that take a complete beginner from zero to a deployed Intelligent Contract.
 Each idea must name a specific GenLayer concept or use case to teach (e.g. "sentiment analysis contract", "on-chain price oracle", "AI-powered voting"), define a clear learning arc, and use a contract that demonstrates Optimistic Democracy and the Equivalence Principle.
-Valid output formats: written guide, video series, or both. Must include a Python Intelligent Contract and a genlayer-js frontend, verifiable in GenLayer Studio and Shipyard.`,
+Valid output formats: written guide, video series, or both. Must include a Python Intelligent Contract and a browser frontend, verifiable in GenLayer Studio and Shipyard.`,
 
     minigame: `This is for the "Mini-Games for Community" special mission — an on-chain game contribution.
 Ideas MUST be multiplayer mini-games where an Intelligent Contract IS the core game engine — handling all state, turns, and outcomes.
@@ -59,23 +59,23 @@ Requirements: 2+ players, 5–15 minute sessions, replayable weekly, XP leaderbo
 Ideas MUST be real-world applications that can be shipped as a working MVP and grown through milestones. Any domain: DeFi, social, gaming, tooling, or other.
 Each idea must identify the specific problem being solved, explain how the contract's AI capabilities (gl.exec_prompt, gl.get_webpage, gl.eq_principle_prompt_comparative) add unique value over a traditional smart contract, describe the MVP scope (what is the minimum shippable version), and hint at what growth milestones beyond launch would look like.`,
 
-    research: `This is for the "Research & Analysis" open contribution track.
+    research: `This is for the "Research & Analysis" contribution path.
 Ideas MUST be original research topics publishable as a paper, blog post, or technical thread — not apps or tools.
 Each idea must name a specific open question in the GenLayer ecosystem (e.g. consensus analysis, AI alignment, use-case exploration, comparative studies vs other L1s), outline the research methodology, and describe the expected publication format and audience.`,
 
-    tools: `This is for the "Tools & Infrastructure" open contribution track.
+    tools: `This is for the "Tools & Infrastructure" contribution path.
 Ideas MUST be developer tools that reduce friction for GenLayer builders — CLIs, libraries, npm packages, templates, testing frameworks, IDE extensions.
 Each idea must identify a specific pain point for GenLayer developers, describe the tool's interface and how it works, and explain how it integrates with GenLayer Studio, Shipyard, or genlayer-js.`,
 
-    community: `This is for the "Community & Growth" open contribution track.
+    community: `This is for the "Community & Growth" contribution path.
 Ideas MUST be community-building activities — content series, events, onboarding flows, ambassador programs, or translation projects. Not apps or contracts.
 Each idea must name a concrete deliverable (e.g. "10-part Twitter thread series", "monthly GenLayer meetup in Lagos", "Spanish translation of the docs"), the target audience and expected reach, and how it grows the GenLayer ecosystem.`,
 
-    documentation: `This is for the "Documentation" open contribution track.
+    documentation: `This is for the "Documentation" contribution path.
 Ideas MUST be documentation improvements for the official GenLayer docs — new guides, API references, concept explainers, how-tos, or translations.
 Each idea must identify a specific gap or weakness in the current documentation, name the format (reference page, how-to guide, concept explainer, translation into a specific language), and describe how it would be submitted via the GenLayer GitHub repository.`,
 
-    educational: `This is for the "Educational Content" open contribution track.
+    educational: `This is for the "Educational Content" contribution path.
 Ideas MUST be standalone educational resources — video courses, workshops, explainer series, or interactive lessons — distinct from the official docs.
 Each idea must name a specific GenLayer concept or workflow to teach, specify the format (video course, written workshop, interactive demo, live workshop), and state the target skill level and expected learning outcomes.`,
   }

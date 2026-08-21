@@ -33,7 +33,7 @@ Create a tutorial that:
 1. Explains Optimistic Democracy and the Equivalence Principle in plain language
 2. Walks through building the demo contract step by step in Python
 3. Shows how to test it in GenLayer Studio
-4. Builds a genlayer-js frontend that connects to the deployed contract
+4. Builds a browser frontend using GenLayer JSON-RPC that connects to the deployed contract
 5. Guides deployment on Shipyard (contract) and Netlify Drop (frontend)
 
 The tutorial must be thorough enough to qualify for the official GenLayer documentation feature prize.`

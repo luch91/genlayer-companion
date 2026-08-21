@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { MissionId, BuildStep, IdeaItem, GeneratedOutput, BuildConfig, SavedBuild } from '@/types'
-import { buildDeliverable } from '@/lib/claude'
+import { buildDeliverable } from '@/lib/ai'
 import { saveBuild, updateBuild } from '@/lib/storage'
 import IdeaGenerator from './IdeaGenerator'
 import QuestionForm from './QuestionForm'
@@ -12,14 +12,14 @@ import LoadingDots from '@/components/ui/LoadingDots'
 import Button from '@/components/ui/Button'
 
 const GENERATING_MESSAGES: Record<MissionId, string> = {
-  minigame:       'Claude is building your contract, frontend, and content...',
-  projects:       'Claude is building your contract, frontend, and content...',
-  tools:          'Claude is building your contract, frontend, and content...',
-  tutorial:       'Claude is writing your tutorial and building the demo contract...',
-  research:       'Claude is writing your research paper...',
-  community:      'Claude is building your community contribution plan...',
-  documentation:  'Claude is writing your documentation...',
-  educational:    'Claude is building your educational content...',
+  minigame:       'AI is building your contract, frontend, and content...',
+  projects:       'AI is building your contract, frontend, and content...',
+  tools:          'AI is building your contract, frontend, and content...',
+  tutorial:       'AI is writing your tutorial and building the demo contract...',
+  research:       'AI is writing your research paper...',
+  community:      'AI is building your community contribution plan...',
+  documentation:  'AI is writing your documentation...',
+  educational:    'AI is building your educational content...',
 }
 
 const STEP_LABELS: Record<BuildStep, string> = {
@@ -279,8 +279,8 @@ export default function BuildWizard({ missionId, restoredBuild, onClose }: Build
               justifyContent: 'center',
             }}
           >
-            <div style={{ position: 'absolute', top: '10%', left: '15%', width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,229,160,0.07) 0%, transparent 70%)', filter: 'blur(48px)', animation: 'gl-float 9s ease-in-out infinite', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '50%', left: '65%', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'gl-float-alt 11s ease-in-out infinite', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '10%', left: '15%', width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(231,111,81,0.07) 0%, transparent 70%)', filter: 'blur(48px)', animation: 'gl-float 9s ease-in-out infinite', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '50%', left: '65%', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(158,212,226,0.05) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'gl-float-alt 11s ease-in-out infinite', pointerEvents: 'none' }} />
 
             {[0, 1, 2].map((i) => (
               <div
@@ -292,7 +292,7 @@ export default function BuildWizard({ missionId, restoredBuild, onClose }: Build
                   width: 180,
                   height: 180,
                   borderRadius: '50%',
-                  border: '1px solid rgba(0,229,160,0.25)',
+                  border: '1px solid rgba(231,111,81,0.25)',
                   animation: 'gl-generating-ring 2.4s ease-out infinite',
                   animationDelay: `${i * 0.8}s`,
                   pointerEvents: 'none',
