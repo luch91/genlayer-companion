@@ -12,7 +12,7 @@ The Builder Companion uses four visible build stages, with an automated generati
 
 1. **Find an idea** — describe your own or let AI generate five mission-specific suggestions
 2. **Customize** — answer mission-specific questions that shape the output
-3. **Review** — inspect the full generated output after AI creates all six artifacts in parallel
+3. **Review** — inspect the generated output after AI creates the artifacts appropriate to the selected track
 4. **Export** — run a 5-point security audit, preview in-browser, download as ZIP, deploy
 
 ---
@@ -70,6 +70,8 @@ OPENROUTER_API_KEY=your_openrouter_key_here
 - **OpenRouter** — pay-per-use, get a key at [openrouter.ai](https://openrouter.ai)
 
 > Never commit `.env.local`. It is already in `.gitignore`.
+
+For a hosted deployment, add both variables in your hosting provider's project settings before deploying. The app returns an error for AI requests when either required provider key is unavailable.
 
 ### 3. Run the dev server
 
@@ -140,10 +142,10 @@ The single route (`app/api/generate/route.ts`) handles four request types:
 |---|---|---|---|
 | `chat` | Groq | 1024 | Mode-aware AI chat |
 | `ideas` | Groq | 2048 | Generate 5 tailored ideas |
-| `build` | OpenRouter | 8192 per artifact | Generate all project artifacts in parallel |
+| `build` | OpenRouter | 8192 per artifact | Generate track-appropriate artifacts in parallel |
 | `audit` | OpenRouter | 4096 | Run 5-point pre-deploy security audit |
 
-Build artifacts are generated in parallel — one OpenRouter call per artifact — then assembled into a `GeneratedOutput` object. Individual artifacts can also be regenerated in isolation without touching the rest of the build.
+Build artifacts are generated in parallel — one OpenRouter call per artifact — then assembled into a `GeneratedOutput` object. Full project tracks generate six artifacts (contract, frontend, prototype, content, README, and test); content-focused tracks generate Markdown and README output. Individual artifacts can also be regenerated in isolation without touching the rest of the build.
 
 ---
 

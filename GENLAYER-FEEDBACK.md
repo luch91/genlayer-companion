@@ -7,7 +7,7 @@ Maintained as a running record for the GenLayer team.
 
 ## What Was Built
 
-The GenLayer Builder Companion is a four-mode AI tool (IDEATE, LEARN, CONTRIBUTE, MISSIONS) that guides builders from concept to deployed Intelligent Contract in a single session. MISSIONS mode generates six artifacts in parallel: Python Intelligent Contract, browser frontend using GenLayer JSON-RPC, HTML prototype, pytest test file, markdown content, and README with Studio → Shipyard deployment steps. A 5-point post-generation security audit runs as a second call against the generated contract and frontend.
+The GenLayer Builder Companion is a four-mode AI tool (IDEATE, LEARN, CONTRIBUTE, MISSIONS) that guides builders from concept to deployable output in a single session. Full project builds generate six artifacts in parallel: Python Intelligent Contract, browser frontend using GenLayer JSON-RPC, HTML prototype, pytest test file, markdown content, and README with Studio → Shipyard deployment steps. Content-focused tracks generate Markdown and README output. A 5-point post-generation security audit runs as a second call against generated contract and frontend artifacts when present.
 
 Stack: Next.js App Router, TypeScript, Groq (llama-3.3-70b-versatile), OpenRouter (qwen3-coder-30b). No backend persistence. No account required.
 

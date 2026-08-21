@@ -38,9 +38,9 @@ export const TOPICS: Topic[] = [
     level: 'intermediate',
   },
   {
-    id: 'genlayer-js',
-    title: 'genlayer-js Frontend SDK',
-    description: 'Connect your HTML/JS frontend to a deployed Intelligent Contract.',
+    id: 'browser-json-rpc',
+    title: 'Browser JSON-RPC Frontend',
+    description: 'Connect an HTML/JS frontend to a deployed Intelligent Contract using JSON-RPC.',
     level: 'intermediate',
   },
   {
@@ -84,8 +84,8 @@ export const TOPIC_SEEDS: Record<string, string> = {
   'gl-get-webpage':
     "You selected **gl.get_webpage** — fetching live web data inside an Intelligent Contract. Ask me for examples: live price feeds, news headlines, sports scores, or how to combine gl.get_webpage with gl.exec_prompt to process the fetched data.",
 
-  'genlayer-js':
-    "You selected **genlayer-js Frontend SDK** — connecting a frontend to a deployed Intelligent Contract. Ask me to show readContract vs writeContract, how to handle transaction states, set up the client, or wire up a complete HTML/JS frontend example.",
+  'browser-json-rpc':
+    "You selected **Browser JSON-RPC Frontend** — connecting a frontend to a deployed Intelligent Contract without an SDK dependency. Ask me to show JSON-RPC read and write requests, transaction states, error handling, or a complete HTML/JS frontend example.",
 
   'studio':
     "You selected **GenLayer Studio** — the browser-based IDE for writing and testing Intelligent Contracts. Ask me how to get started, how to write and run your first contract, how to use the simulator, or how to debug contract behaviour before deploying.",

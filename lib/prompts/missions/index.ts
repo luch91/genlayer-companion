@@ -65,7 +65,7 @@ Each idea must name a specific open question in the GenLayer ecosystem (e.g. con
 
     tools: `This is for the "Tools & Infrastructure" contribution path.
 Ideas MUST be developer tools that reduce friction for GenLayer builders — CLIs, libraries, npm packages, templates, testing frameworks, IDE extensions.
-Each idea must identify a specific pain point for GenLayer developers, describe the tool's interface and how it works, and explain how it integrates with GenLayer Studio, Shipyard, or genlayer-js.`,
+Each idea must identify a specific pain point for GenLayer developers, describe the tool's interface and how it works, and explain how it integrates with GenLayer Studio, Shipyard, or browser JSON-RPC.`,
 
     community: `This is for the "Community & Growth" contribution path.
 Ideas MUST be community-building activities — content series, events, onboarding flows, ambassador programs, or translation projects. Not apps or contracts.

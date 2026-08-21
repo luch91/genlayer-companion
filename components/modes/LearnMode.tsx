@@ -7,7 +7,7 @@ import ChatPanel from '@/components/chat/ChatPanel'
 import Chip from '@/components/ui/Chip'
 
 const DEFAULT_SEED =
-  "I'm your GenLayer learning guide. Select a topic or tool on the left to dive straight in, or ask me anything — from 'what is an Intelligent Contract?' to deep dives on Optimistic Democracy, gl.exec_prompt, and genlayer-js."
+  "I'm your GenLayer learning guide. Select a topic or tool on the left to dive straight in, or ask me anything — from 'what is an Intelligent Contract?' to deep dives on Optimistic Democracy, gl.exec_prompt, and browser JSON-RPC."
 
 const levelColor: Record<string, 'accent' | 'orange' | 'muted'> = {
   beginner: 'accent',
